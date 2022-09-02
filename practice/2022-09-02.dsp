@@ -37,13 +37,23 @@ process =
     dm.zita_light; // stereo reverb
 */
 
-
+/*
 import("stdfaust.lib");
-freq = hslider("frq", 440, 20, 440*8, 1);
-res = hslider("res", 0, -1, 1, 0.01);
-gate = button("[3]gate");
+freq = hslider("[2]frq", 440, 20, 440*8, 1);
+res = hslider("[3]res", 0, -1, 1, 0.01);
+gate = button("[1]gate");
 string(frequency,resonance,trigger) = trigger : ba.impulsify : fi.fb_fcomb(1024,del,1,resonance)
 with {
     del = ma.SR/frequency;
 };
 process = string(freq,res,gate) <: _,_;
+*/
+
+//study
+import("stdfaust.lib");
+freqMod = hslider("h:Modulator/Frequency", 777, 20, 15000, 1) : si.smoo;
+modIndex = hslider("h:Modulator/Modulation Index", 1000, 0, 10000, 1) : si.smoo;
+freq = hslider("h:General Parameters/freq", 440, 20, 8000, 1) : si.smoo;
+gain = hslider("gain", 1, 0, 1, 0.01) : si.smoo;
+gate = button("gate") : si.smoo;
+process = vgroup("FMsynth [style:keyboard]",os.osc(freqMod)*modIndex + freq : os.osc*gate*gain <: _,_);
