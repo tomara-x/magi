@@ -39,6 +39,7 @@ list = par(i,14,par(j,8, ((j+1)+(j+1)*i)%14));
 
 t = ba.beat(128*4);
 c = ba.counter(t)%outputs(list);
+//this is horrble! they're not vars! do you see it now?
 step = list : ba.selectn(outputs(list),c);
 rat = scale : ba.selectn(outputs(scale),step);
 midc = 261.626;
