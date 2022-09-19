@@ -1,6 +1,6 @@
 import("stdfaust.lib");
 scaleRep(scal,octs) = par(i,octs,par(j,outputs(scal),ba.take(j+1,scal)*(i+1)));
-scale = scaleRep(qu.lydian, 3);
+scale = scaleRep(qu.lydian,4);
 
 N = outputs(scale);
 trig = ba.beat(110*4);
@@ -19,4 +19,4 @@ rat = scale : ba.selectn(N,num(x,y,z)%N);
 midc = 261.626;
 frq = midc*rat;
 
-process = frq/4 : os.saw3 : fi.resonlp(2000,6,0.1) <: dm.freeverb_demo,z;
+process = frq/4 : os.saw3 : fi.resonlp(2000,6,0.1) <: dm.freeverb_demo;
