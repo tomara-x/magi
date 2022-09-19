@@ -19,4 +19,8 @@ rat = scale : ba.selectn(N,num(x,y,z)%N);
 midc = 261.626;
 frq = midc*rat;
 
-process = frq/4 : os.saw3 : fi.resonlp(2000,6,0.1) <: dm.freeverb_demo;
+//need gate instead
+t = ba.counter(trig : ba.resetCtr(N*4,1));
+kick = sy.kick(44, 0.01, 0.001, 8, 1, t);
+
+process = frq/4 : os.saw3 : fi.resonlp(2000,6,0.1) + kick <: dm.freeverb_demo;
