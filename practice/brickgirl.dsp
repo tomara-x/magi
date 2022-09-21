@@ -8,9 +8,11 @@ trig1 = ba.beat(110*4); //quarter notes at 110 bpm
 trig2 = trig1 : ba.resetCtr(16,1); //pulse every 16th trig1
 trig3 = trig2 : ba.resetCtr(4,1); //pulse every 4th trig2
 
-x = ba.counter(trig1)%16; //32 steps
-y = ba.counter(trig2)%N;
-z = ba.counter(trig3)%8;
+x = ba.counter(trig1)%16; //16 steps
+// y = ba.counter(trig2)%N;
+// z = ba.counter(trig3)%8;
+y = hslider("y",0,0,64,1);
+z = hslider("z",0,0,64,1);
 
 index(i,j,k) = f(i) +g(i)*j +h(i)*k
 with {
