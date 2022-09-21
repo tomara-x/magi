@@ -16,6 +16,7 @@ with {
 rat = ba.semi2ratio(index(x,y,z)%144);
 midc = 261.626;
 frq = midc*rat;
+//frq = midc*rat : qu.quantize(midc,qu.lydian);
 
 env = en.adsr(0,0,1,0.2,trig);
 mel = frq/16 : os.square*env : fi.resonlp(midc*16*env+midc*2,4,0.1);
