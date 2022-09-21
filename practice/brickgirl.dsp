@@ -10,7 +10,7 @@ trig3 = trig2 : ba.resetCtr(4,1); //pulse every 4th trig2
 
 x = ba.counter(trig1)%16; //32 steps
 y = ba.counter(trig2)%N;
-z = ba.counter(trig3)%4;
+z = ba.counter(trig3)%8;
 
 index(i,j,k) = f(i) +g(i)*j +h(i)*k
 with {
