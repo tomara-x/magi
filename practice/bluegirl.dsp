@@ -1,3 +1,5 @@
+//thank you aria <3, thank you mog <3
+
 import("stdfaust.lib");
 
 trig = ba.beat(132*4); //quarter notes at 132 bpm
