@@ -22,5 +22,6 @@ frq = midc*rat : qu.quantize(midc,qu.lydian);
 env = en.adsr(0,0,1,0.2,trig);
 mel = frq/16 : os.square*env : fi.resonlp(midc*16*env+midc*2,4,0.1);
 
-// don't know how to use attach yet
-process = mel <: _,_ , (1 : ba.selectoutn(16, x) : hgroup("[-1]steps", par(i,16, vbargraph("S%i [style:led]",0,1))));
+led = 1 : ba.selectoutn(16, x) : hgroup("[-1]steps", par(i,16, vbargraph("[%i]S%i [style:led]",0,1))) :> _;
+
+process = attach(mel, led) <: _,_;
