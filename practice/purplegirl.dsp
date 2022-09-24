@@ -4,11 +4,12 @@ import("stdfaust.lib");
 
 N = 16; //number of steps
 trig = ba.beat(hslider("[9]bpm",120,1,960,1)*4);
-//hbout active steps checkboxes?
-t = ba.counter(trig)%hslider("[8]active steps",N,1,N,1);
-x = hslider("[0]x mult",1,0,64,1);
-y = hslider("[1]y mult",1,0,64,1);
-z = hslider("[2]z mult",1,0,64,1);
+htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]active", checkbox("[%2i] %2i")));
+
+t = ba.counter(htrig)%hslider("[8]active steps",N,1,N,1);
+x = hslider("[-1]x mult",1,0,64,1);
+y = hslider("[0]y mult",1,0,64,1);
+z = hslider("[1]z mult",1,0,64,1);
 
 index(t,x,y,z) = f(t) +g(t)*x +h(t)*y +i(t)*z
 with {
@@ -26,7 +27,7 @@ midc = 261.626;
 // scaleList = (qu.eolian,qu.ionian,qu.dorian,qu.locrian,qu.phrygian,qu.lydian,qu.mixo,qu.penta);
 frq = midc*rat : qu.quantize(midc,qu.eolian);
 
-env = en.adsr(0,0,1,0.2,trig);
+env = en.adsr(0,0,1,0.2,htrig);
 mel = frq/16 : os.square*env : fi.resonlp(midc*16*env+midc*2,2,0.05);
 
 led = 1 : ba.selectoutn(N, t) : hgroup("[3]steps", par(i,N, vbargraph("[%2i] %2i [style:led]",0,1))) :> _;
