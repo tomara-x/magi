@@ -4,12 +4,12 @@ import("stdfaust.lib");
 
 N = 16; //number of steps
 trig = ba.beat(hslider("[9]bpm",120,1,960,1)*4);
-htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]active", nentry("[%2i] %2i",1,0,1,1)));
+htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[3]active", nentry("[%2i] %2i",1,0,1,1)));
 
 t = ba.counter(htrig)%hslider("[8]active steps",N,1,N,1);
-x = hslider("[-1]x mult",1,0,64,1);
-y = hslider("[0]y mult",1,0,64,1);
-z = hslider("[1]z mult",1,0,64,1);
+x = hslider("[0]x mult",1,0,64,1);
+y = hslider("[1]y mult",1,0,64,1);
+z = hslider("[2]z mult",1,0,64,1);
 
 index(t,x,y,z) = f(t) +g(t)*x +h(t)*y +i(t)*z
 with {
@@ -19,7 +19,10 @@ with {
     i(n) = hgroup("[7]z mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
 };
 
-rat = ba.semi2ratio(index(t,x,y,z)%hslider("[a]max index out (range)", 128, 1, 512, 1)); //what? a? hex?
+//hot mess
+minrange = hslider("[a]offset", 0, 0, 512, 1);
+maxrange = hslider("[b]max", 128, 1, 512, 1);
+rat = ba.semi2ratio((minrange+index(t,x,y,z))%maxrange);
 midc = 261.626;
 
 // scale = nentry("scale[style:menu{'eolian':0;'ionian':1;'dorian':2;'locrian':3;'phrygian':4;'lydian':5;'mixolydian':6;'pentatonic m':7}]",0,0,7,1);
