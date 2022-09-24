@@ -2,9 +2,9 @@
 
 import("stdfaust.lib");
 
-N = 8; //number of steps
+N = 16; //number of steps
 trig = ba.beat(hslider("[9]bpm",120,1,960,1)*4);
-htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]active", checkbox("[%2i] %2i")));
+htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]active", nentry("[%2i] %2i",1,0,1,1)));
 
 t = ba.counter(htrig)%hslider("[8]active steps",N,1,N,1);
 x = hslider("[-1]x mult",1,0,64,1);
