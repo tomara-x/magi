@@ -1,3 +1,6 @@
+// this is a very unfaithful replication of one aspeect of msr [https://aria.dog/modules]
+// thank you aria
+
 import("stdfaust.lib");
 
 N = 16; //number of steps
