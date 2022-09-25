@@ -1,5 +1,5 @@
 // this is a very unfaithful replication of one aspeect of msr [https://aria.dog/modules]
-// thank you aria
+// thank you aria <3
 
 import("stdfaust.lib");
 
@@ -25,18 +25,18 @@ minrange = hgroup("[7]range", hslider("[0]offset", 0, 0, 512, 1));
 maxrange = hgroup("[7]range", hslider("[1]max", 128, 1, 512, 1));
 rat = ba.semi2ratio((minrange+index(t,x,y,z))%maxrange);
 midc = 261.626;
-frq = midc*rat : qu.quantize(midc,qu.eolian);
+frq = midc*rat : qu.quantize(midc,qu.lydian);
 
 //knobs!
-rel = hgroup("[c]misc", hslider("[0] release [style:knob]",0.1,0,2,0.001)); 
+rel = hgroup("[c]misc", vslider("[0] release",0.1,0,2,0.001)); 
 env = en.ar(0,rel,htrig);
 
-cfmult = hgroup("[c]misc",hslider("[1] fc mult [style:knob]",1,0,64,1));
-q = hgroup("[c]misc",hslider("[2] Q [style:knob]",1,1,100,1));
-gain = hgroup("[c]misc",hslider("[3] gain [style:knob]",0.1,0,2,0.01));
+cfmult = hgroup("[c]misc",vslider("[1] fc mult",1,0,64,1));
+q = hgroup("[c]misc",vslider("[2] Q",1,1,100,1));
+gain = hgroup("[c]misc",vslider("[3] gain",0.1,0,2,0.01));
 mel = frq/16 : os.square*env : fi.resonlp(midc*cfmult*env+midc,q,gain);
 
-clip = hgroup("[c]misc",hslider("[4] clip [style:knob]",1,0,1,0.01));
+clip = hgroup("[c]misc",vslider("[4] clip",1,0,1,0.01));
 
 //copied from demo.lib (just to fuck with the ui a bit)
 freeverb_demo = _,_ <: (*(g)*fixedgain,*(g)*fixedgain :
@@ -51,13 +51,13 @@ with{
     origSR = 44100;
 
     parameters(x) = hgroup("[c]misc",vgroup("Freeverb",x));
-    knobGroup(x) = parameters(hgroup("[0]",x));
-    damping = knobGroup(hslider("[0] Damp [style: knob] [tooltip: Somehow control the
+    knobGroup(x) = parameters(vgroup("[0]",x));
+    damping = knobGroup(hslider("[0] Damp [tooltip: Somehow control the
         density of the reverb.]",0.5, 0, 1, 0.025)*scaledamp*origSR/ma.SR);
-    combfeed = knobGroup(hslider("[1] RoomSize [style: knob] [tooltip: The room size
+    combfeed = knobGroup(hslider("[1] RoomSize [tooltip: The room size
         between 0 and 1 with 1 for the largest room.]", 0.5, 0, 1, 0.025)*scaleroom*
         origSR/ma.SR + offsetroom);
-    spatSpread = knobGroup(hslider("[2] Stereo Spread [style: knob] [tooltip: Spatial
+    spatSpread = knobGroup(hslider("[2] Stereo Spread [tooltip: Spatial
         spread between 0 and 1 with 1 for maximum spread.]",0.5,0,1,0.01)*46*ma.SR/origSR
         : int);
     g = parameters(hslider("[1] Wet [tooltip: The amount of reverb applied to the signal
