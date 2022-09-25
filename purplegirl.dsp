@@ -1,41 +1,39 @@
 // this is a very unfaithful replication of one aspeect of msr [https://aria.dog/modules]
 // thank you aria <3
-import("stdfaust.lib");
-
-N = 16; //number of steps
-trig = ba.beat(hslider("[9]bpm",120,1,960,1)*4);
-htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[1]active", nentry("[%2i] %2i",1,0,1,1)));
-
-t = ba.counter(htrig)%hslider("[6]active steps",N,1,N,1);
-x = hgroup("[0]dimension", hslider("[0]x mult",1,0,64,1));
-y = hgroup("[0]dimension", hslider("[1]y mult",1,0,64,1));
-z = hgroup("[0]dimension", hslider("[2]z mult",1,0,64,1));
 
 index(t,x,y,z) = f(t) +g(t)*x +h(t)*y +i(t)*z
 with {
-    f(n) = hgroup("[2]t val", par(j,N, nentry("[%2j] %2j",0,-14,14,1))) : ba.selectn(N,n);
-    g(n) = hgroup("[3]x mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
-    h(n) = hgroup("[4]y mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
-    i(n) = hgroup("[5]z mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
+    f(n) = hgroup("[3]t val", par(j,N, nentry("[%2j] %2j",0,-14,14,1))) : ba.selectn(N,n);
+    g(n) = hgroup("[4]x mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
+    h(n) = hgroup("[5]y mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
+    i(n) = hgroup("[6]z mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
 };
 
-//hot mess
-minrange = hgroup("[7]range", hslider("[0]offset", 36, 0, 512, 1));
-maxrange = hgroup("[7]range", hslider("[1]max", 92, 1, 512, 1));
-rat = ba.semi2ratio((minrange+index(t,x,y,z))%maxrange);
+import("stdfaust.lib");
+
+N = 16; //number of steps
+trig = ba.beat(hgroup("[0]main",hslider("[0]bpm",120,1,960,1)*4));
+htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]active", nentry("[%2i] %2i",1,0,1,1)));
+t = ba.counter(htrig)%hgroup("[0]main",hslider("[2]active steps",N,1,N,1));
+x = hgroup("[1]dimension", hslider("[0]x mult",1,0,64,1));
+y = hgroup("[1]dimension", hslider("[1]y mult",1,0,64,1));
+z = hgroup("[1]dimension", hslider("[2]z mult",1,0,64,1));
+
+minrange = hgroup("[7]range", hslider("[0]min (lol)", 0, 0, 128, 1));
+maxrange = hgroup("[7]range", hslider("[1]max", 36, 1, 128, 1));
+rat = ba.semi2ratio((index(t,x,y,z)%maxrange)+minrange);
 midc = 261.626;
-frq = midc*rat : qu.quantize(midc,qu.lydian);
+oct = hgroup("[7]range", hslider("[2]octave", 0,-8,8,1));
+root = hgroup("[0]main", hslider("[1]root note", 0,0,11,1));
+frq = midc*2^(root/12)*rat : qu.quantize(midc,qu.lydian) * 2^oct; //i'm coming for you next!
 
-//knobs!
-rel = hgroup("[c]misc", vslider("[0] release",0.1,0,2,0.001)); 
+rel = hgroup("[8]misc", vslider("[0] release",0.1,0,2,0.001)); 
 env = en.ar(0,rel,htrig);
-
-cfmult = hgroup("[c]misc",vslider("[1] fc mult",1,0,64,1));
-q = hgroup("[c]misc",vslider("[2] Q",1,1,100,1));
-gain = hgroup("[c]misc",vslider("[3] gain",0.1,0,2,0.01));
-mel = frq/16 : os.square*env : fi.resonlp(midc*cfmult*env+midc,q,gain);
-
-clip = hgroup("[c]misc",vslider("[4] clip",1,0,1,0.01));
+cfmult = hgroup("[8]misc",vslider("[1] fc mult",1,0,64,1));
+q = hgroup("[8]misc",vslider("[2] Q",1,1,100,1));
+gain = hgroup("[8]misc",vslider("[3] gain",0.1,0,2,0.01));
+mel = frq : os.square*env : fi.resonlp(midc*cfmult*env+midc,q,gain);
+clip = hgroup("[8]misc",vslider("[4] clip",1,0,1,0.01));
 
 //copied from demo.lib (just to fuck with the ui a bit)
 freeverb_demo = _,_ <: (*(g)*fixedgain,*(g)*fixedgain :
@@ -49,7 +47,7 @@ with{
     fixedgain   = 0.1;
     origSR = 44100;
 
-    parameters(x) = hgroup("[c]misc",vgroup("Freeverb",x));
+    parameters(x) = hgroup("[8]misc",vgroup("Freeverb",x));
     knobGroup(x) = parameters(vgroup("[0]",x));
     damping = knobGroup(hslider("[0] Damp [tooltip: Somehow control the
         density of the reverb.]",0.5, 0, 1, 0.025)*scaledamp*origSR/ma.SR);
