@@ -1,5 +1,3 @@
-//use tab/shift+tab to select entry boxes and up/down keys to change values quickly
-
 import("stdfaust.lib");
 
 N = 16; //number of steps
@@ -25,12 +23,17 @@ maxrange = hslider("[b]max", 128, 1, 512, 1);
 rat = ba.semi2ratio((minrange+index(t,x,y,z))%maxrange);
 midc = 261.626;
 
-// scale = nentry("scale[style:menu{'eolian':0;'ionian':1;'dorian':2;'locrian':3;'phrygian':4;'lydian':5;'mixolydian':6;'pentatonic m':7}]",0,0,7,1);
-//bad way to do it, this is a list of 49+5 elements
-// scaleList = (qu.eolian,qu.ionian,qu.dorian,qu.locrian,qu.phrygian,qu.lydian,qu.mixo,qu.penta);
 frq = midc*rat : qu.quantize(midc,qu.eolian);
 
-env = en.adsr(0,0,1,0.2,htrig);
-mel = frq/16 : os.square*env : fi.resonlp(midc*16*env+midc*2,2,0.05);
+//knobs!
+rel = hgroup("[c]misc", hslider("[0] release [style:knob]",0.1,0,2,0.001)); 
+env = en.ar(0,rel,htrig);
 
-process = mel <: _,_;
+cfmult = hgroup("[c]misc",hslider("[1] fc mult [style:knob]",1,0,64,1));
+q = hgroup("[c]misc",hslider("[2] Q [style:knob]",1,1,100,1));
+gain = hgroup("[c]misc",hslider("[3] gain [style:knob]",0.1,0,2,0.01));
+mel = frq/16 : os.square*env : fi.resonlp(midc*cfmult*env+midc,q,gain);
+
+clip = hgroup("[c]misc",hslider("[4] clip [style:knob]",1,0,1,0.01));
+
+process = mel : aa.clip(-clip,clip) <: _,_;
