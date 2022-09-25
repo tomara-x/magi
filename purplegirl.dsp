@@ -1,6 +1,5 @@
 // this is a very unfaithful replication of one aspeect of msr [https://aria.dog/modules]
 // thank you aria <3
-
 import("stdfaust.lib");
 
 N = 16; //number of steps
@@ -21,8 +20,8 @@ with {
 };
 
 //hot mess
-minrange = hgroup("[7]range", hslider("[0]offset", 0, 0, 512, 1));
-maxrange = hgroup("[7]range", hslider("[1]max", 128, 1, 512, 1));
+minrange = hgroup("[7]range", hslider("[0]offset", 36, 0, 512, 1));
+maxrange = hgroup("[7]range", hslider("[1]max", 92, 1, 512, 1));
 rat = ba.semi2ratio((minrange+index(t,x,y,z))%maxrange);
 midc = 261.626;
 frq = midc*rat : qu.quantize(midc,qu.lydian);
