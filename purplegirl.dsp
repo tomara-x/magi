@@ -22,7 +22,6 @@ minrange = hslider("[a]offset", 0, 0, 512, 1);
 maxrange = hslider("[b]max", 128, 1, 512, 1);
 rat = ba.semi2ratio((minrange+index(t,x,y,z))%maxrange);
 midc = 261.626;
-
 frq = midc*rat : qu.quantize(midc,qu.eolian);
 
 //knobs!
