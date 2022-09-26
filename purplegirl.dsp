@@ -1,7 +1,10 @@
 // this is a very unfaithful replication of one aspeect of msr [https://aria.dog/modules]
 // thank you aria <3
 
-//what about multiphonics...
+import("stdfaust.lib");
+
+N = 16; //number of steps
+
 index(t,x,y,z) = f(t) +g(t)*x +h(t)*y +i(t)*z
 with {
     f(n) = hgroup("[3]t val", par(j,N, nentry("[%2j] %2j",0,-14,14,1))) : ba.selectn(N,n);
@@ -10,29 +13,30 @@ with {
     i(n) = hgroup("[6]z mod", par(j,N, nentry("[%2j] %2j",1,-14,14,1))) : ba.selectn(N,n);
 };
 
-import("stdfaust.lib");
-
-N = 16; //number of steps
 trig = ba.beat(hgroup("[0]main",hslider("[0]bpm",120,1,960,1)*4));
-htrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]active", nentry("[%2i] %2i",1,0,1,1)));
-t = ba.counter(htrig)%hgroup("[0]main",hslider("[2]active steps",N,1,N,1));
-x = hgroup("[1]dimension", hslider("[0]x mult",1,0,64,1));
-y = hgroup("[1]dimension", hslider("[1]y mult",1,0,64,1));
-z = hgroup("[1]dimension", hslider("[2]z mult",1,0,64,1));
 
-minrange = hgroup("[7]range", hslider("[0]min (lol)", 0, 0, 128, 1));
-maxrange = hgroup("[7]range", hslider("[1]max", 36, 1, 128, 1));
-rat = ba.semi2ratio((index(t,x,y,z)%maxrange)+minrange);
+rat = ba.semi2ratio((index(t,x,y,z)%maxrange)+minrange)
+with {
+    t = ba.counter(trig)%hgroup("[0]main",hslider("[2]active steps",N,1,N,1));
+    x = hgroup("[1]dimension", hslider("[0]x mult",1,0,64,1));
+    y = hgroup("[1]dimension", hslider("[1]y mult",1,0,64,1));
+    z = hgroup("[1]dimension", hslider("[2]z mult",1,0,64,1));
+
+    minrange = hgroup("[7]range", hslider("[0]min", 0, 0, 128, 1));
+    maxrange = hgroup("[7]range", hslider("[1]max", 36, 1, 128, 1));
+};
+
 midc = 261.626;
-oct = hgroup("[7]range", hslider("[2]octave", 0,-8,8,1));
-root = hgroup("[0]main", hslider("[1]root note", 0,0,11,1));
+oct = hgroup("[7]range",hslider("[2]octave", 0,-8,8,1));
+root = hgroup("[0]main",hslider("[1]root note", 0,0,11,1));
 frq = midc*2^(root/12)*rat : qu.quantize(midc,qu.lydian) * 2^oct; //i'm coming for you next!
 
 mel = frq : os.square*env <: fi.resonlp(cf1*cfmult1*env+cf1,q1,gain1),
-                             fi.resonlp(cf2*cfmult2*env+cf2,q2,gain2) :> aa.clip(-clip,clip)
+                             fi.resonlp(cf2*cfmult2*env+cf2,q2,gain2) :> aa.clip(-clip,clip) * pgain
 with {
+    etrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]env",nentry("[%2i] %2i",1,0,1,1)));
     rel = hgroup("[8]misc", vslider("[0] release",0.1,0,2,0.001)); 
-    env = en.ar(0,rel,htrig);
+    env = en.ar(0,rel,etrig);
 
     cf1 = hgroup("[8]misc", hgroup("[1]filter1", vslider("[0] cf",261.626,1,261.626,1)));
     cfmult1 = hgroup("[8]misc", hgroup("[1]filter1", vslider("[1] cf mult",1,0,64,1)));
@@ -44,10 +48,12 @@ with {
     q2 = hgroup("[8]misc", hgroup("[2]filter2", vslider("[1] Q",1,1,100,1)));
     gain2 = hgroup("[8]misc", hgroup("[2]filter2", vslider("[2] gain",0.1,0,2,0.01)));
 
-    clip = hgroup("[8]misc",vslider("[3] clip",1,0,1,0.01));
+    clip = hgroup("[8]misc",vslider("[3] clip",1,0,1,0.001));
+
+    pgain = hgroup("[8]misc",vslider("[4] post gain",1,0,16,0.001)); //make those db
 };
 
-//copied from demo.lib (just to fuck with the ui a bit)
+//copied from demos.lib (just to fuck with the ui a bit)
 freeverb_demo = _,_ <: (*(g)*fixedgain,*(g)*fixedgain :
     re.stereo_freeverb(combfeed, allpassfeed, damping, spatSpread)),
     *(1-g), *(1-g) :> _,_
