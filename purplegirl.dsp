@@ -33,8 +33,8 @@ frq = midc*2^(root/12)*rat : qu.quantize(midc,qu.lydian) * 2^oct; //i'm coming f
 
 //commiting crimes since 2012
 mel = frq : os.square*(env*ose+(1-ose)) <: 
-fi.resonlp(cf1*cfmult1*((env+0.01)*cf1e+(1-cf1e)), q1*((env+0.01)*q1e+(1-q1e)),gain1),
-fi.resonlp(cf2*cfmult2*((env+0.01)*cf2e+(1-cf2e)), q2*((env+0.01)*q2e+(1-q2e)),gain2)
+fi.resonlp(cf1*cfmult1*(env*cf1e+(1-cf1e))+cf1, q1*((env+0.01)*q1e+(1-q1e)),gain1),
+fi.resonlp(cf2*cfmult2*(env*cf2e+(1-cf2e))+cf1, q2*((env+0.01)*q2e+(1-q2e)),gain2)
 :> aa.clip(-clip,clip) * pgain
 with {
     etrig = sum(i,N,trig : ba.resetCtr(N,i+1) * hgroup("[2]env",nentry("[%2i] %2i",1,0,1,1)));
