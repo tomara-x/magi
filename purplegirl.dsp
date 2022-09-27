@@ -4,6 +4,7 @@
 import("stdfaust.lib");
 
 N = 16; //number of steps
+mode = qu.lydian;
 
 index(t,x,y,z) = f(t) +g(t)*x +h(t)*y +i(t)*z
 with {
@@ -29,7 +30,7 @@ with {
 midc = 261.626;
 oct = hgroup("[7]range",hslider("[2]octave", 0,-8,8,1));
 root = hgroup("[0]main",hslider("[1]root note", 0,0,11,1));
-frq = midc*2^(root/12)*rat : qu.quantize(midc,qu.lydian) * 2^oct; //i'm coming for you next!
+frq = midc*2^(root/12)*rat : qu.quantize(midc,mode) * 2^oct;
 
 //commiting crimes since 2012
 mel = frq : os.square*(env*ose+(1-ose)) <: 
