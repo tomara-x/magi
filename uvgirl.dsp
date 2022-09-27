@@ -26,11 +26,9 @@ with {
     minrange = hgroup("[7]range", hslider("[0]min", 0, 0, 128, 1));
     maxrange = hgroup("[7]range", hslider("[1]max", 36, 1, 128, 1));
 };
-
 midc = 261.626;
 root = hgroup("[0]main",hslider("[1]root note", 0,0,11,1));
 oct = hgroup("[7]range",hslider("[2]octave", 0,-8,8,1));
-
 frq = midc*2^(root/12)*ratio * 2^oct;
 
 //commiting crimes since 2012
@@ -64,4 +62,6 @@ with {
     q2e = hgroup("[8]misc",vgroup("[3] env mod", checkbox("[4] q2")));
 };
 
-process = mel <: hgroup("[8]misc",dm.freeverb_demo);
+midi = ba.hz2midikey(frq) : hgroup("[8]misc",vbargraph("midi",0,128));
+
+process = attach(mel, midi) <: hgroup("[8]misc",dm.freeverb_demo);
