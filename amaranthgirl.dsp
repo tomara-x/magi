@@ -33,15 +33,15 @@ with {
     key = hgroup("[0]main", hslider("[1]key [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1));
 };
 
-process = frqs : par(i,3,os.square*gain(i)) :> filtah : aa.clip(-clp,clp)*pgain <: verb
+process = frqs : par(i,3,os.square*gain(i)) :> filtah(3) : aa.clip(-clp,clp)*pgain : filtah(9) <: verb
 with {
     verb = hgroup("[b]out", dm.freeverb_demo);
-    filtah = fi.svf.lp(cf,q)
+    filtah(x) = fi.svf.lp(cf,q)
     with {
-        cf = hgroup("[b]out",vslider("[3]filter cf",20000,0,21000,0.001));
-        q = hgroup("[b]out",vslider("[4]filter q",1,0,100,0.001));
+        cf = hgroup("[b]out",vslider("[%x]filter cf %x",20000,0,21000,0.001));
+        q = hgroup("[b]out",vslider("[%x]filter q %x",1,0,100,0.001));
     };
     gain(x) = hgroup("[b]out",vslider("[%x]gain %x",0.1,0,2,0.001));
-    clp = hgroup("[b]out",vslider("[5]clip",0.5,0,1,0.001));
-    pgain = hgroup("[b]out",vslider("[6]post gain",0.01,0,2,0.001));
+    clp = hgroup("[b]out",vslider("[7]clip",0.5,0,1,0.001));
+    pgain = hgroup("[b]out",vslider("[8]post gain",0.01,0,2,0.001));
 };
