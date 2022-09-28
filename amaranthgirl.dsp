@@ -14,24 +14,34 @@ with {
     ct(n) = hgroup("[9]c trans", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
 };
 
-frqs = semis(t,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(midc *2^(root/12) *2^oct))
+frqs = semis(t,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
+        _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key)
 with {
-    t = ba.counter(trig)%hgroup("[0]main",hslider("[2]active steps",N,1,N,1));
+    t = ba.counter(trig)%hgroup("[0]main", hslider("[3]active steps",N,1,N,1));
     x = hgroup("[1]dimension", hslider("[0]x mult",1,0,64,1));
     y = hgroup("[1]dimension", hslider("[1]y mult",1,0,64,1));
     z = hgroup("[1]dimension", hslider("[2]z mult",1,0,64,1));
     a = hgroup("[2]trans mult", hslider("[0]a",1,0,64,1));
     b = hgroup("[2]trans mult", hslider("[0]b",1,0,64,1));
     c = hgroup("[2]trans mult", hslider("[0]c",1,0,64,1));
-    minrange = hgroup("[a]range", hslider("[0]min", 0, 0, 128, 1));
-    maxrange = hgroup("[a]range", hslider("[1]max", 36, 1, 128, 1));
+    minrange = hgroup("[a]range", hslider("[0]min", 0, 0, 128, 0.5));
+    maxrange = hgroup("[a]range", hslider("[1]max", 36, 1, 128, 0.5));
     midc = 261.626;
-    root = hgroup("[0]main",hslider("[1]root note", 0,0,11,0.5));
+    rootf = midc * 2^(hgroup("[0]main",hslider("[2]root note", 0,0,11.5,0.5))/12);
     oct = hgroup("[a]range",hslider("[2]octave", 0,-8,8,1));
+    f(n) = par(i,9,_) <: par(i,3,ba.selectn(9,n*3+i)); //output nth 3 signals of the 9 inputs
+    key = hgroup("[0]main", hslider("[1]key [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1));
 };
 
-gain(x) = hgroup("[b]out",vslider("[%x]gain %x",1,0,2,0.001));
-clp = hgroup("[b]out",vslider("clip",1,0,1,0.001));
-pgain = hgroup("[b]out",vslider("post gain",1,0,2,0.001));
-
-process = frqs : par(i,3,os.square*gain(i)) :> aa.clip(-clp,clp)*pgain <: hgroup("[b]out", dm.freeverb_demo);
+process = frqs : par(i,3,os.square*gain(i)) :> filtah : aa.clip(-clp,clp)*pgain <: verb
+with {
+    verb = hgroup("[b]out", dm.freeverb_demo);
+    filtah = fi.svf.lp(cf,q)
+    with {
+        cf = hgroup("[b]out",vslider("[3]filter cf",20000,0,21000,0.001));
+        q = hgroup("[b]out",vslider("[4]filter q",1,0,100,0.001));
+    };
+    gain(x) = hgroup("[b]out",vslider("[%x]gain %x",0.1,0,2,0.001));
+    clp = hgroup("[b]out",vslider("[5]clip",0.5,0,1,0.001));
+    pgain = hgroup("[b]out",vslider("[6]post gain",0.01,0,2,0.001));
+};
