@@ -1,6 +1,6 @@
 import("stdfaust.lib");
 
-N = 16; //number of steps
+N = 32; //number of steps
 trig = ba.beat(hgroup("[0]main",hslider("[0]bpm",120,0,960,0.001)*4));
 
 semis(t,x,y,z,a,b,c) = f(t) +g(t)*x +h(t)*y +i(t)*z <: +(at(t)*a), +(bt(t)*b), +(ct(t)*c)
@@ -33,9 +33,8 @@ with {
     key = hgroup("[0]main", hslider("[1]key [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1));
 };
 
-process = frqs : par(i,3,os.square*gain(i)) :> filtah(3) : aa.clip(-clp,clp)*pgain : filtah(9) <: verb
+process = hgroup("0", vgroup("1",frqs) : vgroup("2",par(i,3,os.square*gain(i)) :> filtah(3) : aa.clip(-clp,clp)*pgain : filtah(9) <: dm.freeverb_demo))
 with {
-    verb = hgroup("[b]out", dm.freeverb_demo);
     filtah(x) = fi.svf.lp(cf,q)
     with {
         cf = hgroup("[b]out",vslider("[%x]filter cf %x",20000,0,21000,0.001));
