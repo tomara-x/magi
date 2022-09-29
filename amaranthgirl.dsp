@@ -42,10 +42,7 @@ with {
 r1 = hgroup("[0]osc",hgroup("[1]env release",vslider("[0]0",0,0,2,0.0001)));
 r2 = hgroup("[0]osc",hgroup("[1]env release",vslider("[1]1",0,0,2,0.0001)));
 r3 = hgroup("[0]osc",hgroup("[1]env release",vslider("[2]2",0,0,2,0.0001)));
-env(x) = 1,en.ar(0,r1,trig1),en.ar(0,r2,trig2),en.ar(0,r3,trig3) : select
-with {
-    select = ba.selectn(4,hgroup("[0]osc",vslider("v %x env [style:radio{'none':0;'0':1;'1':2;'2':3}]",0,0,3,1)));
-};
+env(x) = en.ar(0,r1,trig1),en.ar(0,r2,trig2),en.ar(0,r3,trig3) : ba.selectn(3,x);
 
 process = hgroup("amaranthgirl",vgroup("seq",frqs) : vgroup("sound",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
             aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)))
