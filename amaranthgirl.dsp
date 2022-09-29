@@ -39,15 +39,15 @@ with {
     key = hgroup("[0]key", hslider("[1]quantization [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1));
 };
 
-r1 = vgroup("[0]osc",vgroup("[1]env release",hslider("[0]0",0,0,2,0.0001)));
-r2 = vgroup("[0]osc",vgroup("[1]env release",hslider("[1]1",0,0,2,0.0001)));
-r3 = vgroup("[0]osc",vgroup("[1]env release",hslider("[2]2",0,0,2,0.0001)));
+r1 = hgroup("[0]osc",hgroup("[1]env release",vslider("[0]0",0,0,2,0.0001)));
+r2 = hgroup("[0]osc",hgroup("[1]env release",vslider("[1]1",0,0,2,0.0001)));
+r3 = hgroup("[0]osc",hgroup("[1]env release",vslider("[2]2",0,0,2,0.0001)));
 env(x) = 1,en.ar(0,r1,trig1),en.ar(0,r2,trig2),en.ar(0,r3,trig3) : select
 with {
-    select = ba.selectn(4,vgroup("[0]osc",vgroup("[0]gain",vslider("v %x env [style:radio{'no':0;'0':1;'1':2;'2':3}]",0,0,3,1))));
+    select = ba.selectn(4,hgroup("[0]osc",hgroup("[0]gain",vslider("v %x env [style:radio{'no':0;'0':1;'1':2;'2':3}]",0,0,3,1))));
 };
 
-process = hgroup("0", vgroup("1",frqs) : vgroup("2",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
+process = tgroup("amaranthgirl",vgroup("seq",frqs) : hgroup("sound",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
             aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)))
 with {
     filtah(x) = fi.svf.lp(cf,q)
@@ -55,7 +55,7 @@ with {
         cf = hgroup("[0]out",vslider("[%x]filter %x cf",20000,0,21000,0.001));
         q = hgroup("[0]out",vslider("[%x]filter %x q",1,0,100,0.001));
     };
-    gain(x) = vgroup("[0]osc",vgroup("[0]gain",hslider("[%x]v %x",0.1,0,2,0.001)));
+    gain(x) = hgroup("[0]osc",hgroup("[0]gain",vslider("[%x]v %x",0.1,0,2,0.001)));
     clp = hgroup("[0]out",vslider("[1a]clip",0.5,0,1,0.001));
     pgain = hgroup("[0]out",vslider("[1b]post gain",0.01,0,2,0.001));
 };
