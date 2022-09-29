@@ -47,7 +47,7 @@ with {
     select = ba.selectn(4,hgroup("[0]osc",hgroup("[0]gain",vslider("v %x env [style:radio{'none':0;'0':1;'1':2;'2':3}]",0,0,3,1))));
 };
 
-process = tgroup("amaranthgirl",vgroup("seq",frqs) : hgroup("sound",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
+process = hgroup("amaranthgirl",vgroup("seq",frqs) : vgroup("sound",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
             aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)))
 with {
     filtah(x) = fi.svf.lp(cf,q)
