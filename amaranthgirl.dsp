@@ -1,3 +1,5 @@
+//trans rights
+
 import("stdfaust.lib");
 
 N = 32; //number of steps
