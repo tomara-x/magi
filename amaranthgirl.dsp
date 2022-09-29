@@ -1,9 +1,9 @@
 import("stdfaust.lib");
 
 N = 32; //number of steps
-trig1 = ba.beat(hgroup("[1]speed",hslider("[0]bpm 1",120,0,960,0.001)*4));
-trig2 = ba.beat(hgroup("[1]speed",hslider("[1]bpm 2",120,0,960,0.001)*4));
-trig3 = ba.beat(hgroup("[1]speed",hslider("[2]bpm 3",120,0,960,0.001)*4));
+trig1 = ba.beat(hgroup("[1]speed",hslider("[0]bpm 0",120,0,960,0.001)*4));
+trig2 = ba.beat(hgroup("[1]speed",hslider("[1]bpm 1",120,0,960,0.001)*4));
+trig3 = ba.beat(hgroup("[1]speed",hslider("[2]bpm 2",120,0,960,0.001)*4));
 
 //sorry! i'll clean it later, i promise!
 semis(t1,t2,t3,x,y,z,a,b,c) = f(t1)+g(t1)*x+h(t1)*y+i(t1)*z, f(t2)+g(t2)*x+h(t2)*y+i(t2)*z, f(t3)+g(t3)*x+h(t3)*y+i(t3)*z :
@@ -39,14 +39,23 @@ with {
     key = hgroup("[0]key", hslider("[1]quantization [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1));
 };
 
-process = hgroup("0", vgroup("1",frqs) : vgroup("2",par(i,3,os.square*gain(i)) :> filtah(3) : aa.clip(-clp,clp)*pgain : filtah(9) <: dm.freeverb_demo))
+r1 = vgroup("[0]osc",vgroup("[1]env release",hslider("[0]0",0,0,2,0.0001)));
+r2 = vgroup("[0]osc",vgroup("[1]env release",hslider("[1]1",0,0,2,0.0001)));
+r3 = vgroup("[0]osc",vgroup("[1]env release",hslider("[2]2",0,0,2,0.0001)));
+env(x) = 1,en.ar(0,r1,trig1),en.ar(0,r2,trig2),en.ar(0,r3,trig3) : select
+with {
+    select = ba.selectn(4,vgroup("[0]osc",vgroup("[0]gain",vslider("v %x env [style:radio{'no':0;'0':1;'1':2;'2':3}]",0,0,3,1))));
+};
+
+process = hgroup("0", vgroup("1",frqs) : vgroup("2",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
+            aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)))
 with {
     filtah(x) = fi.svf.lp(cf,q)
     with {
-        cf = hgroup("[0]out",vslider("[%x]filter cf %x",20000,0,21000,0.001));
-        q = hgroup("[0]out",vslider("[%x]filter q %x",1,0,100,0.001));
+        cf = hgroup("[0]out",vslider("[%x]filter %x cf",20000,0,21000,0.001));
+        q = hgroup("[0]out",vslider("[%x]filter %x q",1,0,100,0.001));
     };
-    gain(x) = hgroup("[0]out",vslider("[%x]gain %x",0.1,0,2,0.001));
-    clp = hgroup("[0]out",vslider("[7]clip",0.5,0,1,0.001));
-    pgain = hgroup("[0]out",vslider("[8]post gain",0.01,0,2,0.001));
+    gain(x) = vgroup("[0]osc",vgroup("[0]gain",hslider("[%x]v %x",0.1,0,2,0.001)));
+    clp = hgroup("[0]out",vslider("[1a]clip",0.5,0,1,0.001));
+    pgain = hgroup("[0]out",vslider("[1b]post gain",0.01,0,2,0.001));
 };
