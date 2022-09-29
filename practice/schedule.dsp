@@ -14,3 +14,5 @@ with {
 };
 
 process = scheduleSamp(no.pink_noise,44100,2*44100);
+
+//i think the muted signal will still be computed, so this is nothing like a csound schedule
