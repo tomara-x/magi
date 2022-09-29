@@ -2,7 +2,7 @@
 
 import("stdfaust.lib");
 
-N = 32; //number of steps
+N = 16; //number of steps
 trig1 = ba.beat(hgroup("[0]main",hgroup("[1]speed",nentry("[0]bpm 0",120,0,960,0.001)*4)));
 trig2 = ba.beat(hgroup("[0]main",hgroup("[1]speed",nentry("[1]bpm 1",120,0,960,0.001)*4)));
 trig3 = ba.beat(hgroup("[0]main",hgroup("[1]speed",nentry("[2]bpm 2",120,0,960,0.001)*4)));
