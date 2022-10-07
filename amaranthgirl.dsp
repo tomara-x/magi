@@ -3,13 +3,17 @@
 import("stdfaust.lib");
 
 N = 16; //number of steps
+
+//sequence triggers
 trig1 = ba.beat(hgroup("[0]main",hgroup("[1]speed",nentry("[0]bpm 0",120,0,960,0.001)*4)));
 trig2 = ba.beat(hgroup("[0]main",hgroup("[1]speed",nentry("[1]bpm 1",120,0,960,0.001)*4)));
 trig3 = ba.beat(hgroup("[0]main",hgroup("[1]speed",nentry("[2]bpm 2",120,0,960,0.001)*4)));
 
-//sorry! i'll clean it later, i promise!
-semis(t1,t2,t3,x,y,z,a,b,c) = f(t1)+g(t1)*x+h(t1)*y+i(t1)*z, f(t2)+g(t2)*x+h(t2)*y+i(t2)*z, f(t3)+g(t3)*x+h(t3)*y+i(t3)*z :
-        +(at(t1)*a), +(bt(t2)*b), +(ct(t3)*c)
+
+//                            t val  x offset y off    z off     voice offset
+semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +(at(t1)*a),
+                              f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +(bt(t2)*b),
+                              f(t3) +g(t3)*x +h(t3)*y +i(t3)*z +(ct(t3)*c)
 with {
     f(n) = hgroup("[5]t val", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
     g(n) = hgroup("[6]x mod", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
@@ -19,6 +23,7 @@ with {
     bt(n) = hgroup("[a]b trans", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
     ct(n) = hgroup("[b]c trans", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
 };
+
 
 frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
         _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key)
@@ -41,10 +46,19 @@ with {
     key = hgroup("[0]main",hgroup("[0]key", hslider("[1]quantization [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1)));
 };
 
-r1 = hgroup("[0]osc",hgroup("[1]env release",vslider("[0]0",0,0,2,0.0001)));
-r2 = hgroup("[0]osc",hgroup("[1]env release",vslider("[1]1",0,0,2,0.0001)));
-r3 = hgroup("[0]osc",hgroup("[1]env release",vslider("[2]2",0,0,2,0.0001)));
-env(x) = en.ar(0,r1,trig1),en.ar(0,r2,trig2),en.ar(0,r3,trig3) : ba.selectn(3,x);
+
+//envelope biz (needs cleaning)
+r0 = hgroup("env",hgroup("[1]env release",vslider("[0]0",0,0,8,0.0001)));
+r1 = hgroup("env",hgroup("[1]env release",vslider("[1]1",0,0,8,0.0001)));
+r2 = hgroup("env",hgroup("[1]env release",vslider("[2]2",0,0,8,0.0001)));
+e0 = ba.beat(nentry("bpm 0",120,0,960,0.001)*4);
+e1 = ba.beat(nentry("bpm 1",120,0,960,0.001)*4);
+e2 = ba.beat(nentry("bpm 2",120,0,960,0.001)*4);
+e0trig = hgroup("env",sum(i,N,e0 : ba.resetCtr(N,i+1) * vgroup("active steps 0",checkbox("[%2i] %2i"))));
+e1trig = hgroup("env",sum(i,N,e1 : ba.resetCtr(N,i+1) * vgroup("active steps 1",checkbox("[%2i] %2i"))));
+e2trig = hgroup("env",sum(i,N,e2 : ba.resetCtr(N,i+1) * vgroup("active steps 2",checkbox("[%2i] %2i"))));
+env(x) = en.are(0,r0,e0trig),en.are(0,r1,e1trig),en.are(0,r2,e2trig) : ba.selectn(3,x);
+
 
 process = hgroup("amaranthgirl",vgroup("seq",frqs) : vgroup("sound",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
             aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)))
@@ -54,7 +68,7 @@ with {
         cf = hgroup("[0]out",vslider("[%x]filter %x cf",20000,0,21000,0.001));
         q = hgroup("[0]out",vslider("[%x]filter %x q",1,0,100,0.001));
     };
-    gain(x) = hgroup("[0]osc",hgroup("[0]gain",vslider("[%x]v %x",0.1,0,2,0.001)));
+    gain(x) = hgroup("[0]out",hgroup("[0]osc",hgroup("[0]gain",vslider("[%x]v %x",0.1,0,2,0.001))));
     clp = hgroup("[0]out",vslider("[1a]clip",0.5,0,1,0.001));
     pgain = hgroup("[0]out",vslider("[1b]post gain",0.01,0,2,0.001));
 };
