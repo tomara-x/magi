@@ -1,5 +1,7 @@
 //trans rights
 
+declare author "amy universe";
+declare license "wtfpl";
 import("stdfaust.lib");
 
 N = 16; //number of steps
@@ -15,13 +17,13 @@ semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +(at(t1)*a),
                               f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +(bt(t2)*b),
                               f(t3) +g(t3)*x +h(t3)*y +i(t3)*z +(ct(t3)*c)
 with {
-    f(n) = hgroup("[5]t val", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
-    g(n) = hgroup("[6]x mod", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
-    h(n) = hgroup("[7]y mod", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
-    i(n) = hgroup("[8]z mod", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
-    at(n) = hgroup("[9]a trans", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
-    bt(n) = hgroup("[a]b trans", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
-    ct(n) = hgroup("[b]c trans", par(j,N, nentry("[%2j] %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    f(n) = hgroup("[5]t val", par(j,N, nentry("[%2j] t %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    g(n) = hgroup("[6]x mod", par(j,N, nentry("[%2j] x %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    h(n) = hgroup("[7]y mod", par(j,N, nentry("[%2j] y %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    i(n) = hgroup("[8]z mod", par(j,N, nentry("[%2j] z %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    at(n) = hgroup("[9]a trans", par(j,N, nentry("[%2j] a %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    bt(n) = hgroup("[a]b trans", par(j,N, nentry("[%2j] b %2j",0,-24,24,0.5))) : ba.selectn(N,n);
+    ct(n) = hgroup("[b]c trans", par(j,N, nentry("[%2j] c %2j",0,-24,24,0.5))) : ba.selectn(N,n);
 };
 
 
@@ -48,16 +50,17 @@ with {
 
 
 //envelope biz (needs cleaning)
-r0 = hgroup("env",hgroup("[1]env release",vslider("[0]0",0,0,8,0.0001)));
-r1 = hgroup("env",hgroup("[1]env release",vslider("[1]1",0,0,8,0.0001)));
-r2 = hgroup("env",hgroup("[1]env release",vslider("[2]2",0,0,8,0.0001)));
-e0 = ba.beat(nentry("bpm 0",120,0,960,0.001)*4);
-e1 = ba.beat(nentry("bpm 1",120,0,960,0.001)*4);
-e2 = ba.beat(nentry("bpm 2",120,0,960,0.001)*4);
-e0trig = hgroup("env",sum(i,N,e0 : ba.resetCtr(N,i+1) * vgroup("active steps 0",checkbox("[%2i] %2i"))));
-e1trig = hgroup("env",sum(i,N,e1 : ba.resetCtr(N,i+1) * vgroup("active steps 1",checkbox("[%2i] %2i"))));
-e2trig = hgroup("env",sum(i,N,e2 : ba.resetCtr(N,i+1) * vgroup("active steps 2",checkbox("[%2i] %2i"))));
+r0 = hgroup("env",hgroup("[1]env release",vslider("[0]r0",0,0,8,0.0001)));
+r1 = hgroup("env",hgroup("[1]env release",vslider("[1]r1",0,0,8,0.0001)));
+r2 = hgroup("env",hgroup("[1]env release",vslider("[2]r2",0,0,8,0.0001)));
+e0 = ba.beat(nentry("env bpm 0",120,0,960,0.001)*4);
+e1 = ba.beat(nentry("env bpm 1",120,0,960,0.001)*4);
+e2 = ba.beat(nentry("env bpm 2",120,0,960,0.001)*4);
+e0trig = hgroup("env",sum(i,N,e0 : ba.resetCtr(N,i+1) * vgroup("active steps 0",checkbox("[%2i] 0 %2i"))));
+e1trig = hgroup("env",sum(i,N,e1 : ba.resetCtr(N,i+1) * vgroup("active steps 1",checkbox("[%2i] 1 %2i"))));
+e2trig = hgroup("env",sum(i,N,e2 : ba.resetCtr(N,i+1) * vgroup("active steps 2",checkbox("[%2i] 2 %2i"))));
 env(x) = en.are(0,r0,e0trig),en.are(0,r1,e1trig),en.are(0,r2,e2trig) : ba.selectn(3,x);
+
 
 
 process = hgroup("amaranthgirl",vgroup("seq",frqs) : vgroup("sound",par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
