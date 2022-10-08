@@ -39,7 +39,7 @@ with {
     a = hgroup("seq",vgroup("controls",vgroup("[4]trans mult", hslider("[0]a",1,0,64,1))));
     b = hgroup("seq",vgroup("controls",vgroup("[4]trans mult", hslider("[0]b",1,0,64,1))));
     c = hgroup("seq",vgroup("controls",vgroup("[4]trans mult", hslider("[0]c",1,0,64,1))));
-    minrange = hgroup("seq",vgroup("controls",vgroup("[d]range", hslider("[0]min", 0, 0, 128, 0.5))));
+    minrange = hgroup("seq",vgroup("controls",vgroup("[d]range", hslider("[0]min (psych!)", 0, 0, 128, 0.5))));
     maxrange = hgroup("seq",vgroup("controls",vgroup("[d]range", hslider("[1]max", 36, 1, 128, 0.5))));
     midc = 261.626;
     rootf = midc * 2^(hgroup("seq",vgroup("controls",hgroup("[0]key",nentry("[2]root note", 0,0,11.5,0.5))))/12);
