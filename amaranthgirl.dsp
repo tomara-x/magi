@@ -50,9 +50,9 @@ with {
 
 
 //envelope biz (needs cleaning)
-r0 = hgroup("[0]out",hgroup("[1]env release",vslider("[0]r0",0,0,8,0.0001)));
-r1 = hgroup("[0]out",hgroup("[1]env release",vslider("[1]r1",0,0,8,0.0001)));
-r2 = hgroup("[0]out",hgroup("[1]env release",vslider("[2]r2",0,0,8,0.0001)));
+r0 = hgroup("[0]out",hgroup("[1]env release",vslider("[0]r0",0.1,0,8,0.0001)));
+r1 = hgroup("[0]out",hgroup("[1]env release",vslider("[1]r1",0.1,0,8,0.0001)));
+r2 = hgroup("[0]out",hgroup("[1]env release",vslider("[2]r2",0.1,0,8,0.0001)));
 e0 = ba.beat(vgroup("controls",hgroup("[3]env speed",nentry("env bpm 0",120,0,960,0.001)*4)));
 e1 = ba.beat(vgroup("controls",hgroup("[3]env speed",nentry("env bpm 1",120,0,960,0.001)*4)));
 e2 = ba.beat(vgroup("controls",hgroup("[3]env speed",nentry("env bpm 2",120,0,960,0.001)*4)));
@@ -69,9 +69,9 @@ with {
     filtah(x) = fi.svf.lp(cf,q)
     with {
         cf = hgroup("[0]out",vslider("[%x]filter %x cf",20000,0,21000,0.001));
-        q = hgroup("[0]out",vslider("[%x]filter %x q",1,0,100,0.001));
+        q = hgroup("[0]out",vslider("[%x]filter %x q",1,0.001,100,0.001));
     };
     gain(x) = hgroup("[0]out",hgroup("[0]gain",vslider("[%x]v %x",0.1,0,2,0.001)));
     clp = hgroup("[0]out",vslider("[1a]clip",0.5,0,1,0.001));
-    pgain = hgroup("[0]out",vslider("[1b]post gain",0.01,0,2,0.001));
+    pgain = hgroup("[0]out",vslider("[1b]post gain",0.5,0,2,0.001));
 };
