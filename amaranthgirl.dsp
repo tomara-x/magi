@@ -6,18 +6,18 @@ import("stdfaust.lib");
 
 N = 16; //number of steps
 
-//                            t val  x offset y off    z off     voice offset
-semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +(at(t1)*a),
-                              f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +(bt(t2)*b),
-                              f(t3) +g(t3)*x +h(t3)*y +i(t3)*z +(ct(t3)*c) : _,_,_
+//                            t val x offset y offset z offset abc offset
+semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +a(t1)*a,
+                              f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +b(t2)*b,
+                              f(t3) +g(t3)*x +h(t3)*y +i(t3)*z +c(t3)*c : _,_,_
 with {
     f(n) = par(j,N, nentry("h:seq/v:[5]t val/[%2j] t %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     g(n) = par(j,N, nentry("h:seq/v:[6]x mod/[%2j] x %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     h(n) = par(j,N, nentry("h:seq/v:[7]y mod/[%2j] y %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     i(n) = par(j,N, nentry("h:seq/v:[8]z mod/[%2j] z %2j",0,-24,24,0.1)) : ba.selectn(N,n);
-    at(n) = par(j,N, nentry("h:seq/v:[9]a trans/[%2j] a %2j",0,-24,24,0.1)) : ba.selectn(N,n);
-    bt(n) = par(j,N, nentry("h:seq/v:[a]b trans/[%2j] b %2j",0,-24,24,0.1)) : ba.selectn(N,n);
-    ct(n) = par(j,N, nentry("h:seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    a(n) = par(j,N, nentry("h:seq/v:[9]a trans/[%2j] a %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    b(n) = par(j,N, nentry("h:seq/v:[a]b trans/[%2j] b %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    c(n) = par(j,N, nentry("h:seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.1)) : ba.selectn(N,n);
 };
 
 frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
