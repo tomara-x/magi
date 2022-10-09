@@ -25,9 +25,9 @@ with {
 frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
         _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key)
 with {
-    trig1 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[0]bpm a",120,0,960,0.001)*4);
-    trig2 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[1]bpm b",120,0,960,0.001)*4);
-    trig3 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[2]bpm c",120,0,960,0.001)*4);
+    trig1 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[0]bpm a",120,0,600000,0.001)*4);
+    trig2 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[1]bpm b",120,0,600000,0.001)*4);
+    trig3 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[2]bpm c",120,0,600000,0.001)*4);
     t1 = ba.counter(trig1)%nentry("h:seq/v:controls/h:[1]length/[0]active steps a",N,1,N,1);
     t2 = ba.counter(trig2)%nentry("h:seq/v:controls/h:[1]length/[1]active steps b",N,1,N,1);
     t3 = ba.counter(trig3)%nentry("h:seq/v:controls/h:[1]length/[2]active steps c",N,1,N,1);
@@ -56,10 +56,10 @@ with {
     e0 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 0",120,0,600000,0.001)*4);
     e1 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 1",120,0,600000,0.001)*4);
     e2 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 2",120,0,600000,0.001)*4);
-    //first is last, need to shift those
-    e0trig = sum(i,N,e0 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
-    e1trig = sum(i,N,e1 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
-    e2trig = sum(i,N,e2 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:[2]env trig c/[%2i] c %2i"));
+    //sorry! this way we go N,0,1,2,...,N-1
+    e0trig = sum(i,N,e0 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
+    e1trig = sum(i,N,e1 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
+    e2trig = sum(i,N,e2 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[2]env trig c/[%2i] c %2i"));
     env(x) = en.are(0,r0,e0trig),en.are(0,r1,e1trig),en.are(0,r2,e2trig) : ba.selectn(3,x);
 
     filtah(x) = fi.svf.lp(cf,q)
