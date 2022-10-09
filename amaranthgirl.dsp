@@ -56,7 +56,7 @@ with {
     e0 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 0",120,0,600000,0.001)*4);
     e1 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 1",120,0,600000,0.001)*4);
     e2 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 2",120,0,600000,0.001)*4);
-    //sorry! this way we go N,0,1,2,...,N-1
+    //sorry! this way we go N,1,2,...,N-1
     e0trig = sum(i,N,e0 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
     e1trig = sum(i,N,e1 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
     e2trig = sum(i,N,e2 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[2]env trig c/[%2i] c %2i"));
