@@ -6,11 +6,6 @@ import("stdfaust.lib");
 
 N = 16; //number of steps
 
-//sequence triggers
-trig1 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[0]seq bpm 0",120,0,960,0.001)*4);
-trig2 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[1]seq bpm 1",120,0,960,0.001)*4);
-trig3 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[2]seq bpm 2",120,0,960,0.001)*4);
-
 
 //                            t val  x offset y off    z off     voice offset
 semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +(at(t1)*a),
@@ -27,10 +22,12 @@ with {
 };
 
 
-//coulda prolly moved the semis call and made this a _,_,_ : function : _,_,_
 frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
         _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key)
 with {
+    trig1 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[0]seq bpm 0",120,0,960,0.001)*4);
+    trig2 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[1]seq bpm 1",120,0,960,0.001)*4);
+    trig3 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[2]seq bpm 2",120,0,960,0.001)*4);
     t1 = ba.counter(trig1)%nentry("h:seq/v:controls/h:[1]length/[0]active steps 1",N,1,N,1);
     t2 = ba.counter(trig2)%nentry("h:seq/v:controls/h:[1]length/[1]active steps 2",N,1,N,1);
     t3 = ba.counter(trig3)%nentry("h:seq/v:controls/h:[1]length/[2]active steps 3",N,1,N,1);
@@ -50,21 +47,20 @@ with {
 };
 
 
-r0 = vslider("h:[0]out/h:[1]env release/[0]r0",0.1,0,8,0.0001);
-r1 = vslider("h:[0]out/h:[1]env release/[1]r1",0.1,0,8,0.0001);
-r2 = vslider("h:[0]out/h:[1]env release/[2]r2",0.1,0,8,0.0001);
-e0 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 0",120,0,960,0.001)*4);
-e1 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 1",120,0,960,0.001)*4);
-e2 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 2",120,0,960,0.001)*4);
-e0trig = sum(i,N,e0 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 0/[%2i] 0 %2i"));
-e1trig = sum(i,N,e1 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 1/[%2i] 1 %2i"));
-e2trig = sum(i,N,e2 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 2/[%2i] 2 %2i"));
-env(x) = en.are(0,r0,e0trig),en.are(0,r1,e1trig),en.are(0,r2,e2trig) : ba.selectn(3,x);
-
-
 process = frqs : par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
             aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)
 with {
+    r0 = vslider("h:[0]out/h:[1]env release/[0]r0",0.1,0,8,0.0001);
+    r1 = vslider("h:[0]out/h:[1]env release/[1]r1",0.1,0,8,0.0001);
+    r2 = vslider("h:[0]out/h:[1]env release/[2]r2",0.1,0,8,0.0001);
+    e0 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 0",120,0,960,0.001)*4);
+    e1 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 1",120,0,960,0.001)*4);
+    e2 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 2",120,0,960,0.001)*4);
+    e0trig = sum(i,N,e0 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 0/[%2i] 0 %2i"));
+    e1trig = sum(i,N,e1 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 1/[%2i] 1 %2i"));
+    e2trig = sum(i,N,e2 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 2/[%2i] 2 %2i"));
+    env(x) = en.are(0,r0,e0trig),en.are(0,r1,e1trig),en.are(0,r2,e2trig) : ba.selectn(3,x);
+
     filtah(x) = fi.svf.lp(cf,q)
     with {
         cf = vslider("h:[0]out/[%x]filter %x cf",20000,0,21000,0.001);
