@@ -6,7 +6,6 @@ import("stdfaust.lib");
 
 N = 16; //number of steps
 
-
 //                            t val  x offset y off    z off     voice offset
 semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +(at(t1)*a),
                               f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +(bt(t2)*b),
@@ -20,7 +19,6 @@ with {
     bt(n) = par(j,N, nentry("h:seq/v:[a]b trans/[%2j] b %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     ct(n) = par(j,N, nentry("h:seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.1)) : ba.selectn(N,n);
 };
-
 
 frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
         _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key) : _,_,_
@@ -39,7 +37,7 @@ with {
     c = hslider("h:seq/v:controls/v:[4]trans mult/[0]c",1,0,64,1);
     minrange = hslider("h:seq/v:controls/v:[d]range/[0]min (psych!)", 0, 0, 128, 0.1);
     maxrange = hslider("h:seq/v:controls/v:[d]range/[1]max", 36, 1, 128, 0.1);
-    midc = 261.626;
+    midc = 220*2^(3/12);
     rootf = midc * 2^(nentry("h:seq/v:controls/h:[0]key/[2]root note", 0,0,11.5,0.1)/12);
     oct = hslider("h:seq/v:controls/v:[d]range/[2]octave", 0,-8,8,1);
     f(n) = par(i,9,_) <: par(i,3,ba.selectn(9,n*3+i)); //output nth 3 signals of the 9 inputs
@@ -57,16 +55,14 @@ with {
     aclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 0",120,0,600000,0.001)*4);
     bclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 1",120,0,600000,0.001)*4);
     cclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 2",120,0,600000,0.001)*4);
-    //sorry! this way we go N,0,1,2,...,N-1
+    //sorry! this way we go N,1,2,...,N-1
     atrig = sum(i,N,aclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
     btrig = sum(i,N,bclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
     ctrig = sum(i,N,cclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[2]env trig c/[%2i] c %2i"));
-
     cf1 = vslider("h:[0]out/[2]filter 1 cf",20000,0,21000,0.001);
     cf2 = vslider("h:[0]out/[6]filter 2 cf",20000,0,21000,0.001);
     q1 = vslider("h:[0]out/[3]filter 1 q",1,0.001,100,0.001);
     q2 = vslider("h:[0]out/[7]filter 2 q",1,0.001,100,0.001);
-
     again = vslider("h:[0]out/h:[0]gain/[0]a",0.1,0,2,0.001);
     bgain = vslider("h:[0]out/h:[0]gain/[0]b",0.1,0,2,0.001);
     cgain = vslider("h:[0]out/h:[0]gain/[0]c",0.1,0,2,0.001);
