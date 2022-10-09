@@ -23,7 +23,7 @@ with {
 
 
 frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
-        _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key)
+        _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key) : _,_,_
 with {
     trig1 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[0]bpm a",120,0,600000,0.001)*4);
     trig2 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[1]bpm b",120,0,600000,0.001)*4);
@@ -46,31 +46,30 @@ with {
     key = hslider("h:seq/v:controls/h:[0]key/[1]quantization [style:menu{'none':0;'major':1;'minor':2}]",0,0,2,1);
 };
 
-
-process = frqs : par(i,3,os.square*gain(i)*env(i)) :> filtah(1) :
-            aa.clip(-clp,clp)*pgain : filtah(2) <: hgroup("[0]out",dm.freeverb_demo)
+process = frqs : os.square*again*en.are(0,arel,atrig),
+                 os.square*bgain*en.are(0,brel,btrig),
+                 os.square*cgain*en.are(0,crel,ctrig) :>
+    fi.svf.lp(cf1,q1) : aa.clip(-clp,clp)*pgain : fi.svf.lp(cf2,q2) <: hgroup("[0]out",dm.freeverb_demo)
 with {
-    r0 = vslider("h:[0]out/h:[1]env release/[0]a",0.1,0,8,0.00001);
-    r1 = vslider("h:[0]out/h:[1]env release/[1]b",0.1,0,8,0.00001);
-    r2 = vslider("h:[0]out/h:[1]env release/[2]c",0.1,0,8,0.00001);
-    e0 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 0",120,0,600000,0.001)*4);
-    e1 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 1",120,0,600000,0.001)*4);
-    e2 = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 2",120,0,600000,0.001)*4);
-    //sorry! this way we go N,1,2,...,N-1
-    e0trig = sum(i,N,e0 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
-    e1trig = sum(i,N,e1 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
-    e2trig = sum(i,N,e2 : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[2]env trig c/[%2i] c %2i"));
-    env(x) = en.are(0,r0,e0trig),en.are(0,r1,e1trig),en.are(0,r2,e2trig) : ba.selectn(3,x);
+    arel = vslider("h:[0]out/h:[1]env release/[0]a",0.1,0,8,0.00001);
+    brel = vslider("h:[0]out/h:[1]env release/[1]b",0.1,0,8,0.00001);
+    crel = vslider("h:[0]out/h:[1]env release/[2]c",0.1,0,8,0.00001);
+    aclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 0",120,0,600000,0.001)*4);
+    bclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 1",120,0,600000,0.001)*4);
+    cclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 2",120,0,600000,0.001)*4);
+    //sorry! this way we go N,0,1,2,...,N-1
+    atrig = sum(i,N,aclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
+    btrig = sum(i,N,bclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
+    ctrig = sum(i,N,cclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[2]env trig c/[%2i] c %2i"));
 
-    filtah(x) = fi.svf.lp(cf,q)
-    with {
-        cf = vslider("h:[0]out/[%x]filter %x cf",20000,0,21000,0.001);
-        q = vslider("h:[0]out/[%x]filter %x q",1,0.001,100,0.001);
-    };
-    g1 = vslider("h:[0]out/h:[0]gain/[0]a",0.1,0,2,0.001);
-    g2 = vslider("h:[0]out/h:[0]gain/[0]b",0.1,0,2,0.001);
-    g3 = vslider("h:[0]out/h:[0]gain/[0]c",0.1,0,2,0.001);
-    gain(x) = g1,g2,g3 : ba.selectn(3,x);
-    clp = vslider("h:[0]out/[1a]clip",0.5,0,1,0.001);
-    pgain = vslider("h:[0]out/[1b]post gain",0.5,0,2,0.001);
+    cf1 = vslider("h:[0]out/[2]filter 1 cf",20000,0,21000,0.001);
+    cf2 = vslider("h:[0]out/[6]filter 2 cf",20000,0,21000,0.001);
+    q1 = vslider("h:[0]out/[3]filter 1 q",1,0.001,100,0.001);
+    q2 = vslider("h:[0]out/[7]filter 2 q",1,0.001,100,0.001);
+
+    again = vslider("h:[0]out/h:[0]gain/[0]a",0.1,0,2,0.001);
+    bgain = vslider("h:[0]out/h:[0]gain/[0]b",0.1,0,2,0.001);
+    cgain = vslider("h:[0]out/h:[0]gain/[0]c",0.1,0,2,0.001);
+    clp = vslider("h:[0]out/[4]clip",0.5,0,1,0.001);
+    pgain = vslider("h:[0]out/[5]post gain",0.5,0,2,0.001);
 };
