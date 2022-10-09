@@ -12,13 +12,13 @@ semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +(at(t1)*a),
                               f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +(bt(t2)*b),
                               f(t3) +g(t3)*x +h(t3)*y +i(t3)*z +(ct(t3)*c) : _,_,_
 with {
-    f(n) = par(j,N, nentry("h:seq/v:[5]t val/[%2j] t %2j",0,-24,24,0.5)) : ba.selectn(N,n);
-    g(n) = par(j,N, nentry("h:seq/v:[6]x mod/[%2j] x %2j",0,-24,24,0.5)) : ba.selectn(N,n);
-    h(n) = par(j,N, nentry("h:seq/v:[7]y mod/[%2j] y %2j",0,-24,24,0.5)) : ba.selectn(N,n);
-    i(n) = par(j,N, nentry("h:seq/v:[8]z mod/[%2j] z %2j",0,-24,24,0.5)) : ba.selectn(N,n);
-    at(n) = par(j,N, nentry("h:seq/v:[9]a trans/[%2j] a %2j",0,-24,24,0.5)) : ba.selectn(N,n);
-    bt(n) = par(j,N, nentry("h:seq/v:[a]b trans/[%2j] b %2j",0,-24,24,0.5)) : ba.selectn(N,n);
-    ct(n) = par(j,N, nentry("h:seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.5)) : ba.selectn(N,n);
+    f(n) = par(j,N, nentry("h:seq/v:[5]t val/[%2j] t %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    g(n) = par(j,N, nentry("h:seq/v:[6]x mod/[%2j] x %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    h(n) = par(j,N, nentry("h:seq/v:[7]y mod/[%2j] y %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    i(n) = par(j,N, nentry("h:seq/v:[8]z mod/[%2j] z %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    at(n) = par(j,N, nentry("h:seq/v:[9]a trans/[%2j] a %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    bt(n) = par(j,N, nentry("h:seq/v:[a]b trans/[%2j] b %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    ct(n) = par(j,N, nentry("h:seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.1)) : ba.selectn(N,n);
 };
 
 
@@ -37,10 +37,10 @@ with {
     a = hslider("h:seq/v:controls/v:[4]trans mult/[0]a",1,0,64,1);
     b = hslider("h:seq/v:controls/v:[4]trans mult/[0]b",1,0,64,1);
     c = hslider("h:seq/v:controls/v:[4]trans mult/[0]c",1,0,64,1);
-    minrange = hslider("h:seq/v:controls/v:[d]range/[0]min (psych!)", 0, 0, 128, 0.5);
-    maxrange = hslider("h:seq/v:controls/v:[d]range/[1]max", 36, 1, 128, 0.5);
+    minrange = hslider("h:seq/v:controls/v:[d]range/[0]min (psych!)", 0, 0, 128, 0.1);
+    maxrange = hslider("h:seq/v:controls/v:[d]range/[1]max", 36, 1, 128, 0.1);
     midc = 261.626;
-    rootf = midc * 2^(nentry("h:seq/v:controls/h:[0]key/[2]root note", 0,0,11.5,0.5)/12);
+    rootf = midc * 2^(nentry("h:seq/v:controls/h:[0]key/[2]root note", 0,0,11.5,0.1)/12);
     oct = hslider("h:seq/v:controls/v:[d]range/[2]octave", 0,-8,8,1);
     f(n) = par(i,9,_) <: par(i,3,ba.selectn(9,n*3+i)); //output nth 3 signals of the 9 inputs
     key = hslider("h:seq/v:controls/h:[0]key/[1]quantization [style:menu{'major':1;'minor':2;'none':0}]",2,0,2,1);
@@ -56,6 +56,7 @@ with {
     e0 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 0",120,0,960,0.001)*4);
     e1 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 1",120,0,960,0.001)*4);
     e2 = ba.beat(nentry("h:seq/v:controls/h:[3]env speed/env bpm 2",120,0,960,0.001)*4);
+    //first is last, need to shift those
     e0trig = sum(i,N,e0 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 0/[%2i] 0 %2i"));
     e1trig = sum(i,N,e1 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 1/[%2i] 1 %2i"));
     e2trig = sum(i,N,e2 : ba.resetCtr(N,i+1) * checkbox("h:seq/v:active steps 2/[%2i] 2 %2i"));
