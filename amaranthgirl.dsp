@@ -1,40 +1,45 @@
 //trans rights
 
+//dedicated to the girl jamming with this <3
+declare name "amaranthgirl";
 declare author "amy universe";
+declare copyright "amy universe";
+declare version "10.00";
+declare license "WTFPL";
 
 import("stdfaust.lib");
 
 N = 16; //number of steps
 
-//                            t val x offset y offset z offset abc offset
-semis(t1,t2,t3,x,y,z,a,b,c) = f(t1) +g(t1)*x +h(t1)*y +i(t1)*z +a(t1)*a,
-                              f(t2) +g(t2)*x +h(t2)*y +i(t2)*z +b(t2)*b,
-                              f(t3) +g(t3)*x +h(t3)*y +i(t3)*z +c(t3)*c : _,_,_
+//                                  t val  x offset  y offset  z offset  abc offset
+semis(ta,tb,tc,mx,my,mz,ma,mb,mc) = t(ta) +x(ta)*mx +y(ta)*my +z(ta)*mz +a(ta)*ma,
+                                    t(tb) +x(tb)*mx +y(tb)*my +z(tb)*mz +b(tb)*mb,
+                                    t(tc) +x(tc)*mx +y(tc)*my +z(tc)*mz +c(tc)*mc : _,_,_
 with {
-    f(n) = par(j,N, nentry("h:seq/v:[5]t val/[%2j] t %2j",0,-24,24,0.1)) : ba.selectn(N,n);
-    g(n) = par(j,N, nentry("h:seq/v:[6]x mod/[%2j] x %2j",0,-24,24,0.1)) : ba.selectn(N,n);
-    h(n) = par(j,N, nentry("h:seq/v:[7]y mod/[%2j] y %2j",0,-24,24,0.1)) : ba.selectn(N,n);
-    i(n) = par(j,N, nentry("h:seq/v:[8]z mod/[%2j] z %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    t(n) = par(j,N, nentry("h:seq/v:[5]t val/[%2j] t %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    x(n) = par(j,N, nentry("h:seq/v:[6]x mod/[%2j] x %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    y(n) = par(j,N, nentry("h:seq/v:[7]y mod/[%2j] y %2j",0,-24,24,0.1)) : ba.selectn(N,n);
+    z(n) = par(j,N, nentry("h:seq/v:[8]z mod/[%2j] z %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     a(n) = par(j,N, nentry("h:seq/v:[9]a trans/[%2j] a %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     b(n) = par(j,N, nentry("h:seq/v:[a]b trans/[%2j] b %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     c(n) = par(j,N, nentry("h:seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.1)) : ba.selectn(N,n);
 };
 
-frqs = semis(t1,t2,t3,x,y,z,a,b,c) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
+frqs = semis(ta,tb,tc,mx,my,mz,ma,mb,mc) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
         _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key) : _,_,_
 with {
     trig1 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[0]bpm a",120,0,600000,0.001)*4);
     trig2 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[1]bpm b",120,0,600000,0.001)*4);
     trig3 = ba.beat(nentry("h:seq/v:controls/h:[2]seq speed/[2]bpm c",120,0,600000,0.001)*4);
-    t1 = ba.counter(trig1)%nentry("h:seq/v:controls/h:[1]length/[0]active steps a",N,1,N,1);
-    t2 = ba.counter(trig2)%nentry("h:seq/v:controls/h:[1]length/[1]active steps b",N,1,N,1);
-    t3 = ba.counter(trig3)%nentry("h:seq/v:controls/h:[1]length/[2]active steps c",N,1,N,1);
-    x = hslider("h:seq/v:controls/v:[3]mult/[0]x",1,0,64,1);
-    y = hslider("h:seq/v:controls/v:[3]mult/[1]y",1,0,64,1);
-    z = hslider("h:seq/v:controls/v:[3]mult/[2]z",1,0,64,1);
-    a = hslider("h:seq/v:controls/v:[4]trans mult/[0]a",1,0,64,1);
-    b = hslider("h:seq/v:controls/v:[4]trans mult/[0]b",1,0,64,1);
-    c = hslider("h:seq/v:controls/v:[4]trans mult/[0]c",1,0,64,1);
+    ta = ba.counter(trig1)%nentry("h:seq/v:controls/h:[1]length/[0]active steps a",N,1,N,1);
+    tb = ba.counter(trig2)%nentry("h:seq/v:controls/h:[1]length/[1]active steps b",N,1,N,1);
+    tc = ba.counter(trig3)%nentry("h:seq/v:controls/h:[1]length/[2]active steps c",N,1,N,1);
+    mx = hslider("h:seq/v:controls/v:[3]mult/[0]x",1,0,64,1);
+    my = hslider("h:seq/v:controls/v:[3]mult/[1]y",1,0,64,1);
+    mz = hslider("h:seq/v:controls/v:[3]mult/[2]z",1,0,64,1);
+    ma = hslider("h:seq/v:controls/v:[4]trans mult/[0]a",1,0,64,1);
+    mb = hslider("h:seq/v:controls/v:[4]trans mult/[0]b",1,0,64,1);
+    mc = hslider("h:seq/v:controls/v:[4]trans mult/[0]c",1,0,64,1);
     minrange = hslider("h:seq/v:controls/v:[d]range/[0]min (psych!)", 0, 0, 128, 0.1);
     maxrange = hslider("h:seq/v:controls/v:[d]range/[1]max", 36, 1, 128, 0.1);
     midc = 220*2^(3/12);
