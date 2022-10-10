@@ -57,9 +57,9 @@ with {
     arel = vslider("h:[0]out/h:[1]env release/[0]a",0.1,0,8,0.00001);
     brel = vslider("h:[0]out/h:[1]env release/[1]b",0.1,0,8,0.00001);
     crel = vslider("h:[0]out/h:[1]env release/[2]c",0.1,0,8,0.00001);
-    aclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 0",120,0,600000,0.001)*4);
-    bclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 1",120,0,600000,0.001)*4);
-    cclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm 2",120,0,600000,0.001)*4);
+    aclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm a",120,0,600000,0.001)*4);
+    bclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm b",120,0,600000,0.001)*4);
+    cclk = ba.beat(nentry("h:seq/v:controls/h:[3]env clock/bpm c",120,0,600000,0.001)*4);
     //sorry! this way we go N,1,2,...,N-1
     atrig = sum(i,N,aclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[0]env trig a/[%2i] a %2i"));
     btrig = sum(i,N,bclk : ba.resetCtr(N,(N+i-1)%N+1) * checkbox("h:seq/v:[1]env trig b/[%2i] b %2i"));
