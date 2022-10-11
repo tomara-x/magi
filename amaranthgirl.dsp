@@ -3,7 +3,6 @@
 //dedicated to the girl jamming with this <3
 declare name "amaranthgirl";
 declare author "amy universe";
-declare copyright "amy universe";
 declare version "10.00";
 declare license "WTFPL";
 
