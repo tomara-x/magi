@@ -7,7 +7,7 @@ declare license "WTFPL";
 
 import("stdfaust.lib");
 
-pcharm = _ <: sum(i,N,_ : ef.transpose(w*((i+1)*sw+((1-sw))),x,s*i))/N : fi.svf.lp(frq,q) : _
+pcharm = _ <: sum(i,N,_ : ef.transpose(w*((i+1)*sw+(1-sw)),x,s*i))/N : fi.svf.lp(frq,q) : _
 with {
         N = 16;
         w = ba.sec2samp(vslider("[0]window length (s)",0.1,0.001,4,0.001));
