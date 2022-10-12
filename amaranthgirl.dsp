@@ -3,7 +3,7 @@
 //dedicated to the girl jamming with this <3
 declare name "amaranthgirl";
 declare author "amy universe";
-declare version "10.01";
+declare version "10.02";
 declare license "WTFPL";
 
 import("stdfaust.lib");
@@ -51,8 +51,8 @@ with {
 process = frqs : os.square*again*en.are(0,arel,atrig),
                  os.square*bgain*en.are(0,brel,btrig),
                  os.square*cgain*en.are(0,crel,ctrig) :>
-    fi.svf.lp(cf1,q1) : aa.clip(-clp,clp)*pgain : fi.svf.lp(cf2,q2) <:
-    tgroup("[1]sound",hgroup("effects", hgroup("nail",nail,nail) : dm.freeverb_demo))
+    fi.svf.lp(cf1,q1) : aa.clip(-clp,clp)*pgain : fi.svf.lp(cf2,q2) :
+    tgroup("[1]sound",hgroup("effects", hgroup("nailgirl",nail) <: dm.freeverb_demo))
 with {
     arel = vslider("t:[1]sound/h:[0]out/h:[1]env release/[0]a",0.1,0,8,0.00001);
     brel = vslider("t:[1]sound/h:[0]out/h:[1]env release/[1]b",0.1,0,8,0.00001);
@@ -75,9 +75,13 @@ with {
     pgain = vslider("t:[1]sound/h:[0]out/[5]post gain",0.5,0,2,0.001);
 };
 
-nail = _ : *(g0) : aa.tanh1 : *(g1) : aa.sine2 : *(g2) : _
+nail = _ <: (*(wet) : seq(i,3,*(g(i)) : f(s(i))) *gf), *(1-wet) :> _
 with {
-        g0 = vslider("[0]tanh",1,0.01,100,0.01);
-        g1 = vslider("[1]sine",1,0.01,100,0.01);
-        g2 = vslider("[2]post",0.5,0,1,0.01);
+    f(x) = _ <: aa.acosh2,aa.arccos2,aa.arcsin2,aa.arctan2,aa.asinh2,
+                aa.clip(-1,1),aa.cosine2,aa.cubic1,aa.hardclip2,aa.hyperbolic2,
+                aa.parabolic2,aa.sinarctan2,aa.sine2,aa.tanh1 : ba.selectn(14,x);
+    s(x) = vslider("h:%x/%x function",0,0,13,1);
+    g(x) = vslider("h:%x/%x amount",1,1,100,0.01);
+    gf = vslider("post gain",0.5,0,1,0.01);
+    wet = vslider("wet",0,0,1,0.01);
 };
