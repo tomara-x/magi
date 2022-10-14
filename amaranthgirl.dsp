@@ -3,7 +3,7 @@
 //dedicated to the girl jamming with this <3
 declare name "amaranthgirl";
 declare author "amy universe";
-declare version "10.02";
+declare version "10.03";
 declare license "WTFPL";
 
 import("stdfaust.lib");
@@ -51,8 +51,8 @@ with {
 process = frqs : os.square*again*en.are(0,arel,atrig),
                  os.square*bgain*en.are(0,brel,btrig),
                  os.square*cgain*en.are(0,crel,ctrig) :>
-    fi.svf.lp(cf1,q1) : aa.clip(-clp,clp)*pgain : fi.svf.lp(cf2,q2) :
-    tgroup("[1]sound",hgroup("effects", hgroup("nailgirl",nail) <: dm.freeverb_demo))
+    fi.svf.lp(cf1,q1) : aa.clip(-clp,clp)*pgain : fi.svf.lp(cf2,q2) <:
+    tgroup("[1]sound",hgroup("effects", hgroup("dandeliongirl",dandelion) : hgroup("nailgirl",nail) <: dm.freeverb_demo))
 with {
     arel = vslider("t:[1]sound/h:[0]out/h:[1]env release/[0]a",0.1,0,8,0.00001);
     brel = vslider("t:[1]sound/h:[0]out/h:[1]env release/[1]b",0.1,0,8,0.00001);
@@ -83,5 +83,15 @@ with {
     s(x) = vslider("h:%x/%x function",0,0,13,1);
     g(x) = vslider("h:%x/%x amount",1,1,100,0.01);
     gf = vslider("post gain",0.5,0,1,0.01);
+    wet = vslider("wet",0,0,1,0.01);
+};
+
+dandelion =  _ <: (*(wet), _ <: sum(i,N,_ : ef.transpose(w*((i+1)*sw+(1-sw)),x,s*i))/N), *(1-wet) :> _
+with {
+    N = 16;
+    w = ba.sec2samp(vslider("[0]window length (s)",0.1,0.001,4,0.001));
+    x = ba.sec2samp(vslider("[1]crossfade dur (s)",0.1,0.001,1,0.001));
+    s = vslider("[2]shift (semitones)",1,-24,24,0.001);
+    sw = checkbox("[-1]space windows");
     wet = vslider("wet",0,0,1,0.01);
 };
