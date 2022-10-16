@@ -3,7 +3,7 @@
 //dedicated to the girl jamming with this <3
 declare name "amaranthgirl";
 declare author "amy universe";
-declare version "10.03";
+declare version "10.04";
 declare license "WTFPL";
 
 import("stdfaust.lib");
@@ -86,7 +86,7 @@ with {
     wet = vslider("wet",0,0,1,0.01);
 };
 
-dandelion =  _ <: (*(wet), _ <: sum(i,N,_ : ef.transpose(w*((i+1)*sw+(1-sw)),x,s*i))/N), *(1-wet) :> _
+dandelion =  _ <: (*(wet) <: (sum(i,N,_ : ef.transpose(w*((i+1)*sw+(1-sw)),x,s*i))/N)), *(1-wet) :> _
 with {
     N = 16;
     w = ba.sec2samp(vslider("[0]window length (s)",0.1,0.001,4,0.001));
