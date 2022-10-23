@@ -9,11 +9,12 @@ import("stdfaust.lib");
 
 N = 128; //number of modes
 M = 32; //modes per group
+// you're so evil! do this with nested pars!
 mood = _ : pm.modalModel(N,par(i,N,frq(i%M,i/M:int)),
                            par(i,N,dur(i%M,i/M:int)),
                            par(i,N,amp(i%M,i/M:int)))/N : _
 with {
-    frq(x,y) = f*(m*x+(m*x==0))+s*x
+    frq(x,y) = f*(m*x+(m*x==0))+s*x : min(ma.SR/2) //make em stick at the nyquist
     with {
         f = vslider("h:%2y/h:[0]f/[0]base freq [scale:log] [style:knob]",220,10,2e4,0.1);
         m = vslider("h:%2y/h:[0]f/[1]freq mult [style:knob]",1,0,2,0.001);
