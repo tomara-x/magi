@@ -28,7 +28,7 @@ with {
     amp(x,y) = a/(d*x+(x==0))
     with {
         a = vslider("h:%2y/h:[1]a/[0]base amp [style:knob]",0.1,0,1,0.001);
-        d = vslider("h:%2y/h:[1]a/[1]amp div [style:knob]",0.1,0.001,2,0.001);
+        d = vslider("h:%2y/h:[1]a/[1]amp div [style:knob]",1,0.001,2,0.001);
     };  // a, a/d, a/2d, a/3d, ... (same)
 };
 
