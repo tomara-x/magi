@@ -2,13 +2,13 @@
 
 declare name "moodygirl";
 declare author "amy universe";
-declare version "0.06";
+declare version "0.07";
 declare license "WTFPL";
 
 import("stdfaust.lib");
 
-N = 1024; //number of modes
-M = 64; //modes per group
+N = 128; //number of modes  ;faust compiler throws an "alarm clock" with 1024
+M = 16; //modes per group
 // you're so evil! do this with nested pars! (can i?)
 mood = _ : pm.modalModel(N,par(i,N,frq(i%M,i/M:int)),
                            par(i,N,dur(i%M,i/M:int)),
