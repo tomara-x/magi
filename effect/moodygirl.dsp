@@ -2,14 +2,14 @@
 
 declare name "moodygirl";
 declare author "amy universe";
-declare version "0.04";
+declare version "0.05";
 declare license "WTFPL";
 
 import("stdfaust.lib");
 
-N = 128; //number of modes
-M = 32; //modes per group
-// you're so evil! do this with nested pars!
+N = 400; //number of modes
+M = 100; //modes per group
+// you're so evil! do this with nested pars! (can i?)
 mood = _ : pm.modalModel(N,par(i,N,frq(i%M,i/M:int)),
                            par(i,N,dur(i%M,i/M:int)),
                            par(i,N,amp(i%M,i/M:int)))/N : _
@@ -24,7 +24,7 @@ with {
     dur(x,y) = d/(dd*x+(x==0))
     with {
         d = vslider("h:%2y/h:[2]d/[0]base dur [style:knob]",1,0,10,0.001);
-        dd = vslider("h:%2y/h:[2]d/[1]dur div [style:knob]",0.1,0.001,2,0.001);
+        dd = vslider("h:%2y/h:[2]d/[1]dur div [style:knob]",1,0.001,2,0.001);
     };  // d, d/dd, d/2dd, d/3dd, ... (same)
     
     amp(x,y) = a/(d*x+(x==0))
@@ -34,5 +34,5 @@ with {
     };  // a, a/d, a/2d, a/3d, ... (same)
 };
 
-process = no.noise*0.1 : vgroup("moodygirl",mood) <: _,_;
+process = no.noise*0.1 <: hgroup("moodygirl",vgroup("0",mood),vgroup("1",mood)) :> _ <: _,_;
 // process = _ : vgroup("moodygirl",mood) <: _,_;
