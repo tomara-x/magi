@@ -16,9 +16,9 @@ mood = _ : pm.modalModel(N,par(i,N,frq(i%M,i/M:int)),
 with {
     frq(x,y) = f*(m*x+(m*x==0))+s*x : min(ma.SR/2) //make em stick at the nyquist
     with {
-        f = vslider("v:%2y/[0]base freq [scale:log] [style:knob]",220,10,2e4,0.1);
+        f = vslider("v:%2y/[0]base freq [style:knob]",220,1,2e4,0.1);
         m = vslider("v:%2y/[1]freq mult [style:knob]",1,0,2,0.001);
-        s = vslider("v:%2y/[2]freq shift [scale:log] [style:knob]",220,1,2e4,0.1);
+        s = vslider("v:%2y/[2]freq shift [style:knob]",220,0,2e4,0.1);
     };  // f, fm+s, f2m+2s, f3m+3s, ... (for each mode in the group)
 
     dur(x,y) = d/(dd*x+(x==0))
