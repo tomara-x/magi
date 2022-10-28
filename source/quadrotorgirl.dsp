@@ -2,36 +2,43 @@
 
 declare name "quadrotorgirl";
 declare author "amy universe";
-declare version "0.01";
+declare version "0.02";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:4]";
 
 import("stdfaust.lib");
 
-//simple grain generator with a grain release envelope and a gate that mutes grain triggers
-//all passed through a sweeping notch filter with its own clock and freq jump size
-//there's a possibility of 32 overlapping grains (for now) (depending on the env length and trig frq)
-//TODO: (randomness / different way to overlap grains), gated envelopes, grain fm
+//TODO: delay randomization, filter for the noise, grain fm, decay and sustain check
 
-rain =  gate*grntrg*butt : ba.cycle(32) : par(i,32,en.are(0,r)*os.osc(frq)) :> fi.svf.notch(cf,q)*gain
+bi2uni = _ : +(1) : /(2) : _;
+
+rain(x,in) = gate * g1 * g2 : en.adsr(a,d,s,r) * in * vel
 with {
-    grntrg = ba.beat(vslider("h:[0]t/[2]env trig hz[scale:log] [style:knob]",440,0.0001,2e4,0.0001)*60);
-    gate = os.lf_pulsetrain(frq,pw)+1 : /(2)
-    with {
-        frq = vslider("h:[0]t/[0]gate frq [scale:log] [style:knob]",440,0.0001,2e4,0.0001);
-        pw = vslider("h:[0]t/[1]gate width [style:knob]",0.5,0,1,0.001);
-    };
-    r = vslider("h:[0]t/[3]env release[scale:log] [style:knob]",0.01,0.001,4,0.0001);
+    gate = button("h:hidden/gate"); //midi gate
+    vel = nentry("h:hidden/gain",0.5,0,1,0.01); //midi velocity
 
-    cf = ba.counter(os.lf_pulsetrain(frq,0.5)) : *(size) : %(2e4) : +(1)
+    g1 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
     with {
-        frq = vslider("h:[1]f/jmp frq [scale:log] [style:knob]",440,0.0001,2e4,0.0001);
-        size = vslider("h:[1]f/jmp size [scale:log] [style:knob]",440,0.0001,2e4,0.0001);
+        frq = vslider("h:%2x/[0] g1 frq [style:knob]",0,0,200,0.1);
+        width = vslider("h:%2x/[2] g1 pw [style:knob]",0,0,1,0.001);
+        fr = vslider("h:%2x/[1] g1 frq rnd [style:knob]",0,0,1,0.001) * no.noise * 1000; //scale
+        wr = vslider("h:%2x/[3] g1 pw rnd [style:knob]",0,0,1,0.001) * no.noise;
     };
-    frq = vslider("[-1]freq [scale:log] [style:knob]",440,0.0001,2e4,0.0001);
-    butt = button("gate"); //midi gate
-    q = vslider("h:[1]f/q [style:knob]",0.1,0.01,1,0.001);
-    gain = vslider("[3]post gain [style:knob]",1,0,1,0.0001);
+
+    g2 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
+    with {
+        frq = vslider("h:%2x/[4] g2 hfrq [style:knob]",0,0,200,0.1);
+        width = vslider("h:%2x/[6] g2 pw [style:knob]",0,0,1,0.001);
+        fr = vslider("h:%2x/[5] g2 frq rnd [style:knob]",0,0,1,0.001) * no.noise * 1000;
+        wr = vslider("h:%2x/[7] g2 pw rnd [style:knob]",0,0,1,0.001) * no.noise;
+    };
+
+    a = vslider("h:%2x/[8] attack [style:knob]",0,0,0.01,0.0001);
+    d = vslider("h:%2x/[9] decay [style:knob]",0,0,0.01,0.0001);
+    s = vslider("h:%2x/[a] sustain [style:knob]",0,0,1,0.0001);
+    r = vslider("h:%2x/[b] release [style:knob]",0.01,0,1,0.0001);
 };
 
-process = hgroup("quadrotorgirl", rain) <: _,_;
+// process = nentry("h:hidden/freq",0,0,2e4,1) : os.osc <: par(i,4,rain(i)/4) :> _ <: _,_;
+process = nentry("h:hidden/freq",0,0,2e4,1) : os.osc <: par(j,4,par(i,4,rain(i)/16)) :> _ <: _,_;
+//greyhole
