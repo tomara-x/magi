@@ -2,9 +2,9 @@
 
 declare name "quadrotorgirl";
 declare author "amy universe";
-declare version "0.03";
+declare version "0.04";
 declare license "WTFPL";
-declare options "[midi:on][nvoices:4]";
+declare options "[midi:on][nvoices:8]";
 
 import("stdfaust.lib");
 
@@ -14,9 +14,6 @@ bi2uni = _ : +(1) : /(2) : _;
 
 rain(x,in) = gate * g1 * g2 : en.adsr(a,d,s,r) * in * vel
 with {
-    gate = button("h:hidden/gate"); //midi gate
-    vel = nentry("h:hidden/gain",0.5,0,1,0.01); //midi velocity
-
     rnd = no.noise : fi.lowpass(1,vslider("h:%2x/noise filter [style:knob]",2e4,1,2e4,1));
 
     g1 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
@@ -43,9 +40,12 @@ with {
 
 op(amp,frq,fb) = (_+_ : os.oscp(frq)*amp) ~ *(fb); //pm operator
 
-frq = nentry("h:hidden/freq",0,0,2e4,1); //midi frequency
+gate = button("h:hidden (yeah! don't look here!)/gate"); //midi gate
+vel = nentry("h:hidden (yeah! don't look here!)/gain",0.5,0,1,0.01); //midi velocity
+frq = nentry("h:hidden (yeah! don't look here!)/freq",0,0,2e4,1); //midi frequency
+bend = ba.semi2ratio(hslider("h:hidden (yeah! don't look here!)/bend[midi:pitchwheel]",0,-2,2,0.01)) : si.polySmooth(gate,0.999,1);
 
 fb = vslider("feedback [style:knob]",0,0,1,0.001); //carrier feedback
 
-process = par(s,2, op(1,frq,fb) <: par(i,4,rain(i)/4) :> _ );
+process = par(s,2, op(1,frq*bend,fb) <: par(i,4,rain(i)/4) :> _ );
 //greyhole?
