@@ -2,13 +2,13 @@
 
 declare name "quadrotorgirl";
 declare author "amy universe";
-declare version "0.02";
+declare version "0.03";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:4]";
 
 import("stdfaust.lib");
 
-//TODO: delay randomization, filter for the noise, grain fm, decay and sustain check
+//TODO: delay randomization, pitch bend and mod wheel
 
 bi2uni = _ : +(1) : /(2) : _;
 
@@ -17,28 +17,35 @@ with {
     gate = button("h:hidden/gate"); //midi gate
     vel = nentry("h:hidden/gain",0.5,0,1,0.01); //midi velocity
 
+    rnd = no.noise : fi.lowpass(1,vslider("h:%2x/noise filter [style:knob]",2e4,1,2e4,1));
+
     g1 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
     with {
-        frq = vslider("h:%2x/[0] g1 frq [style:knob]",0,0,200,0.1);
-        width = vslider("h:%2x/[2] g1 pw [style:knob]",0,0,1,0.001);
-        fr = vslider("h:%2x/[1] g1 frq rnd [style:knob]",0,0,1,0.001) * no.noise * 1000; //scale
-        wr = vslider("h:%2x/[3] g1 pw rnd [style:knob]",0,0,1,0.001) * no.noise;
+        frq = vslider("h:%2x/h:[0]g1/[0]frq [style:knob]",0,0,2000,0.1);
+        width = vslider("h:%2x/h:[0]g1/[2]pw [style:knob]",0,0,1,0.001);
+        fr = vslider("h:%2x/h:[0]g1/[1]frq rnd [style:knob]",0,0,1,0.001) * rnd * 1000; //scale
+        wr = vslider("h:%2x/h:[0]g1/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
     };
 
     g2 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
     with {
-        frq = vslider("h:%2x/[4] g2 hfrq [style:knob]",0,0,200,0.1);
-        width = vslider("h:%2x/[6] g2 pw [style:knob]",0,0,1,0.001);
-        fr = vslider("h:%2x/[5] g2 frq rnd [style:knob]",0,0,1,0.001) * no.noise * 1000;
-        wr = vslider("h:%2x/[7] g2 pw rnd [style:knob]",0,0,1,0.001) * no.noise;
+        frq = vslider("h:%2x/h:[1]g2/[0]frq [style:knob]",0,0,2000,0.1);
+        width = vslider("h:%2x/h:[1]g2/[2]pw [style:knob]",0,0,1,0.001);
+        fr = vslider("h:%2x/h:[1]g2/[1]frq rnd [style:knob]",0,0,1,0.001) * rnd * 1000;
+        wr = vslider("h:%2x/h:[1]g2/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
     };
 
-    a = vslider("h:%2x/[8] attack [style:knob]",0,0,0.01,0.0001);
-    d = vslider("h:%2x/[9] decay [style:knob]",0,0,0.01,0.0001);
-    s = vslider("h:%2x/[a] sustain [style:knob]",0,0,1,0.0001);
-    r = vslider("h:%2x/[b] release [style:knob]",0.01,0,1,0.0001);
+    a = vslider("h:%2x/h:[2]env/[0]attack [style:knob]",0,0,0.01,0.0001);
+    d = vslider("h:%2x/h:[2]env/[1]decay [style:knob]",0,0,0.01,0.0001);
+    s = vslider("h:%2x/h:[2]env/[2]sustain [style:knob]",0,0,1,0.0001);
+    r = vslider("h:%2x/h:[2]env/[3]release [style:knob]",0.01,0,1,0.0001);
 };
 
-// process = nentry("h:hidden/freq",0,0,2e4,1) : os.osc <: par(i,4,rain(i)/4) :> _ <: _,_;
-process = nentry("h:hidden/freq",0,0,2e4,1) : os.osc <: par(j,4,par(i,4,rain(i)/16)) :> _ <: _,_;
-//greyhole
+op(amp,frq,fb) = (_+_ : os.oscp(frq)*amp) ~ *(fb); //pm operator
+
+frq = nentry("h:hidden/freq",0,0,2e4,1); //midi frequency
+
+fb = vslider("feedback [style:knob]",0,0,1,0.001); //carrier feedback
+
+process = par(s,2, op(1,frq,fb) <: par(i,4,rain(i)/4) :> _ );
+//greyhole?
