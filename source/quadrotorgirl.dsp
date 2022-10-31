@@ -2,19 +2,19 @@
 
 declare name "quadrotorgirl";
 declare author "amy universe";
-declare version "0.04";
+declare version "0.05";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
 import("stdfaust.lib");
 
-//TODO: delay randomization, pitch bend and mod wheel
+//TODO: delay randomization, mod wheel
 
 bi2uni = _ : +(1) : /(2) : _;
 
 rain(x,in) = gate * g1 * g2 : en.adsr(a,d,s,r) * in * vel
 with {
-    rnd = no.noise : fi.lowpass(1,vslider("h:%2x/noise filter [style:knob]",2e4,1,2e4,1));
+    rnd = no.noise : ba.sAndH(ba.beat(vslider("h:%2x/noise rate [style:knob]",2e4,1,2e4,1)*60));
 
     g1 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
     with {
