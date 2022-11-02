@@ -2,7 +2,7 @@
 
 declare name "gaiagirl";
 declare author "amy universe";
-declare version "0.03";
+declare version "0.04";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -34,12 +34,12 @@ with {
 //rotate the formula and scan the wave-tables
 x = par(i,W,rdtable(N,wave : ba.selector(i,W), superf(xp)*g + o*N)) //this feels wrong (the read range)
 with {
-    g = vslider("h:[0]hehe/h:[1]rotor/[0]x gain [style:knob]",1,0,1,0.001);
+    g = vslider("h:[0]hehe/h:[1]rotor/[0]x gain [style:knob]",0.1,0,1,0.001);
     o = vslider("h:[0]hehe/h:[1]rotor/[2]x pose [style:knob]",0.5,0,1,0.001);
 };
 y = par(i,W,rdtable(N,wave : ba.selector(i,W), superf(yp)*g + o*N))
 with {
-    g = vslider("h:[0]hehe/h:[1]rotor/[1]y gain [style:knob]",1,0,1,0.001);
+    g = vslider("h:[0]hehe/h:[1]rotor/[1]y gain [style:knob]",0.1,0,1,0.001);
     o = vslider("h:[0]hehe/h:[1]rotor/[3]y pose [style:knob]",0.5,0,1,0.001);
 };
 
