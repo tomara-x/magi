@@ -2,7 +2,7 @@
 
 declare name "gaiagirl";
 declare author "amy universe";
-declare version "0.02";
+declare version "0.03";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -16,8 +16,8 @@ wave = float(ba.time)*(2.0*ma.PI)/float(N) <: sin,cos,tan;
 W = outputs(wave);
 
 // rotation (i think)
-xp = os.hsp_phasor(2.0*ma.PI,frq,0,0) : sin;
-yp = os.hsp_phasor(2.0*ma.PI,frq,0,0) : cos;
+xp = os.hsp_phasor(1,frq,0,0);
+yp = os.hsp_phasor(1,frq,0,0.5);
 
 //formula shape
 superf(sig) = (abs(cos((m1*sig)/4)/a)^n2 + abs(sin((m2*sig)/4)/b)^n3)^-1/n1 : %(N) //this doesn't keep it in range (cus offset)
