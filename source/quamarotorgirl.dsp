@@ -49,7 +49,7 @@ with {
     oct = hslider("h:[0]seq/v:controls/v:[d]range/[2]octave", 0,-8,8,1);
     f(n) = par(i,9,_) <: par(i,3,ba.selectn(9,n*3+i)); //output nth 3 signals of the 9 inputs
     key = hslider("h:[0]seq/v:controls/h:[0]key/[1]quantization [style:menu{'none':0;'major':1;'minor':2}]",0,0,2,1);
-    env(x) = _ : en.adsr(a,d,s,r)
+    env(x) = _ : en.adsre(a,d,s,r)
     with {
         a = vslider("h:[1]env/h:env %x/[0]attack [style:knob]",0,0,4,0.0001);
         d = vslider("h:[1]env/h:env %x/[1]decay [style:knob]",0,0,4,0.0001);
@@ -60,7 +60,7 @@ with {
 
 
 
-rain(x,in) = g1 * g2 : en.adsr(a,d,s,r) * in
+rain(x,in) = g1 * g2 : en.adsre(a,d,s,r) * in
 with {
     rnd = no.noise : ba.sAndH(ba.beat(rate*60)) : fi.lowpass(1,cf)
     with {
