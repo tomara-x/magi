@@ -2,7 +2,7 @@
 
 declare name "quamarotorgirl";
 declare author "amy universe";
-declare version "0.03";
+declare version "0.04";
 declare license "WTFPL";
 
 import("stdfaust.lib");
@@ -66,17 +66,17 @@ with {
         cf = vslider("h:%2x/h:[2]grain noise (rnd)/filter [style:knob]",2e4,1,2e4,1);
     };
 
-    g1 = os.lf_pulsetrain(f2+fr,width+wr) : bi2uni
+    g1 = os.lf_pulsetrain(f2*2^oct + fr,width+wr) : bi2uni
     with {
-        frq = vslider("h:%2x/h:[0]g1/[0]frq [style:knob]",0,0,2000,0.1);
+        oct = vslider("h:%2x/h:[0]g1/[0]frq oct [style:knob]",0,-8,8,1);
         width = vslider("h:%2x/h:[0]g1/[2]pw [style:knob]",0,0,1,0.001);
         fr = vslider("h:%2x/h:[0]g1/[1]frq rnd [style:knob]",0,0,1,0.001) * rnd * 1000; //scale
         wr = vslider("h:%2x/h:[0]g1/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
     };
 
-    g2 = os.lf_pulsetrain(f3+fr,width+wr) : bi2uni
+    g2 = os.lf_pulsetrain(f3*2^oct + fr,width+wr) : bi2uni
     with {
-        frq = vslider("h:%2x/h:[1]g2/[0]frq [style:knob]",0,0,2000,0.1);
+        oct = vslider("h:%2x/h:[1]g2/[0]frq oct [style:knob]",0,-8,8,1);
         width = vslider("h:%2x/h:[1]g2/[2]pw [style:knob]",0,0,1,0.001);
         fr = vslider("h:%2x/h:[1]g2/[1]frq rnd [style:knob]",0,0,1,0.001) * rnd * 1000;
         wr = vslider("h:%2x/h:[1]g2/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
