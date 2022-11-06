@@ -2,20 +2,23 @@
 
 declare name "quamarotorgirl";
 declare author "amy universe";
-declare version "0.01";
+declare version "0.03";
 declare license "WTFPL";
 
 import("stdfaust.lib");
+
+//amaranth connected to quadrotorgirl
+//but frequency a controls the grain frequency, b controls gate 1, and c controls gate 2
 
 N = 16; //number of steps
 
 bi2uni = _ : +(1) : /(2) : _;
 
 
-//                                  t val  x offset  y offset  z offset  abc offset
-semis(ta,tb,tc,mx,my,mz,ma,mb,mc) = t(ta) +x(ta)*mx +y(ta)*my +z(ta)*mz +a(ta)*ma,
-                                    t(tb) +x(tb)*mx +y(tb)*my +z(tb)*mz +b(tb)*mb,
-                                    t(tc) +x(tc)*mx +y(tc)*my +z(tc)*mz +c(tc)*mc : _,_,_
+//                            t val  x offset  y offset  z offset  abc offset
+semis(ta,mx,my,mz,ma,mb,mc) = t(ta) +x(ta)*mx +y(ta)*my +z(ta)*mz +a(ta)*ma,
+                              t(ta) +x(ta)*mx +y(ta)*my +z(ta)*mz +b(ta)*mb,
+                              t(ta) +x(ta)*mx +y(ta)*my +z(ta)*mz +c(ta)*mc : _,_,_
 with {
     t(n) = par(j,N, nentry("h:[0]seq/v:[5]t val/[%2j] t %2j",0,-24,24,0.1)) : ba.selectn(N,n);
     x(n) = par(j,N, nentry("h:[0]seq/v:[6]x mod/[%2j] x %2j",0,-24,24,0.1)) : ba.selectn(N,n);
@@ -26,41 +29,36 @@ with {
     c(n) = par(j,N, nentry("h:[0]seq/v:[b]c trans/[%2j] c %2j",0,-24,24,0.1)) : ba.selectn(N,n);
 };
 
-amaranth = semis(ta,tb,tc,mx,my,mz,ma,mb,mc) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
-        _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key) :
-        _,g1,_,g2,_,g3 : par(i,3,os.osc * env(i))
+amaranth = semis(ta,mx,my,mz,ma,mb,mc) : par(i,3, %(maxrange) : +(minrange) : ba.semi2ratio : *(rootf*2^oct)) <:
+        _,_,_,par(i,3,qu.quantize(rootf,qu.ionian)),par(i,3,qu.quantize(rootf,qu.eolian)) : f(key) : os.osc*env,_,_
 with {
-    g1 = os.lf_pulsetrain(nentry("h:[0]seq/v:controls/h:[2]seq speed/[0]bpm a",120,0,600000,0.001)*4/60,0.5);
-    g2 = os.lf_pulsetrain(nentry("h:[0]seq/v:controls/h:[2]seq speed/[1]bpm b",120,0,600000,0.001)*4/60,0.5);
-    g3 = os.lf_pulsetrain(nentry("h:[0]seq/v:controls/h:[2]seq speed/[2]bpm c",120,0,600000,0.001)*4/60,0.5);
-    ta = ba.counter(g1)%nentry("h:[0]seq/v:controls/h:[1]length/[0]active steps a",N,1,N,1);
-    tb = ba.counter(g2)%nentry("h:[0]seq/v:controls/h:[1]length/[1]active steps b",N,1,N,1);
-    tc = ba.counter(g3)%nentry("h:[0]seq/v:controls/h:[1]length/[2]active steps c",N,1,N,1);
+    g1 = os.lf_pulsetrain(nentry("h:[0]seq/v:controls/h:[1]length n speed/[0]bpm",120,0,600000,0.001)*4/60,0.5);
+    ta = ba.counter(g1)%nentry("h:[0]seq/v:controls/h:[1]length n speed/[0]active steps",N,1,N,1);
     mx = hslider("h:[0]seq/v:controls/v:[3]mult/[0]x",1,0,64,1);
     my = hslider("h:[0]seq/v:controls/v:[3]mult/[1]y",1,0,64,1);
     mz = hslider("h:[0]seq/v:controls/v:[3]mult/[2]z",1,0,64,1);
     ma = hslider("h:[0]seq/v:controls/v:[4]trans mult/[0]a",1,0,64,1);
     mb = hslider("h:[0]seq/v:controls/v:[4]trans mult/[0]b",1,0,64,1);
     mc = hslider("h:[0]seq/v:controls/v:[4]trans mult/[0]c",1,0,64,1);
-    minrange = hslider("h:[0]seq/v:controls/v:[d]range/[0]min (psych!)", 0, 0, 128, 0.1);
+    minrange = hslider("h:[0]seq/v:controls/v:[d]range/[0]offset", 0, 0, 128, 0.1);
     maxrange = hslider("h:[0]seq/v:controls/v:[d]range/[1]max", 36, 1, 128, 0.1);
     midc = 220*2^(3/12);
     rootf = midc * 2^(nentry("h:[0]seq/v:controls/h:[0]key/[2]root note", 0,0,11.5,0.1)/12);
     oct = hslider("h:[0]seq/v:controls/v:[d]range/[2]octave", 0,-8,8,1);
     f(n) = par(i,9,_) <: par(i,3,ba.selectn(9,n*3+i)); //output nth 3 signals of the 9 inputs
     key = hslider("h:[0]seq/v:controls/h:[0]key/[1]quantization [style:menu{'none':0;'major':1;'minor':2}]",0,0,2,1);
-    env(x) = _ : en.adsre(a,d,s,r)
+    env = g1 : en.adsre(a,d,s,r)
     with {
-        a = vslider("h:[1]env/h:env %x/[0]attack [style:knob]",0,0,4,0.0001);
-        d = vslider("h:[1]env/h:env %x/[1]decay [style:knob]",0,0,4,0.0001);
-        s = vslider("h:[1]env/h:env %x/[2]sustain [style:knob]",0,0,1,0.0001);
-        r = vslider("h:[1]env/h:env %x/[3]release [style:knob]",0.01,0,4,0.0001);
+        a = vslider("h:[0]seq/v:controls/h:[2]env/[0]attack [style:knob]",0,0,4,0.0001);
+        d = vslider("h:[0]seq/v:controls/h:[2]env/[1]decay [style:knob]",0,0,4,0.0001);
+        s = vslider("h:[0]seq/v:controls/h:[2]env/[2]sustain [style:knob]",0,0,1,0.0001);
+        r = vslider("h:[0]seq/v:controls/h:[2]env/[3]release [style:knob]",0.01,0,4,0.0001);
     };
 };
 
 
 
-rain(x,in) = g1 * g2 : en.adsre(a,d,s,r) * in
+rain(x,in,f2,f3) = g1 * g2 : en.adsre(a,d,s,r) * in
 with {
     rnd = no.noise : ba.sAndH(ba.beat(rate*60)) : fi.lowpass(1,cf)
     with {
@@ -68,7 +66,7 @@ with {
         cf = vslider("h:%2x/h:[2]grain noise (rnd)/filter [style:knob]",2e4,1,2e4,1);
     };
 
-    g1 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
+    g1 = os.lf_pulsetrain(f2+fr,width+wr) : bi2uni
     with {
         frq = vslider("h:%2x/h:[0]g1/[0]frq [style:knob]",0,0,2000,0.1);
         width = vslider("h:%2x/h:[0]g1/[2]pw [style:knob]",0,0,1,0.001);
@@ -76,7 +74,7 @@ with {
         wr = vslider("h:%2x/h:[0]g1/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
     };
 
-    g2 = os.lf_pulsetrain(frq+fr,width+wr) : bi2uni
+    g2 = os.lf_pulsetrain(f3+fr,width+wr) : bi2uni
     with {
         frq = vslider("h:%2x/h:[1]g2/[0]frq [style:knob]",0,0,2000,0.1);
         width = vslider("h:%2x/h:[1]g2/[2]pw [style:knob]",0,0,1,0.001);
@@ -92,4 +90,4 @@ with {
 
 
 process = tgroup("quamarotorgirl", vgroup("amaranth",amaranth) <: 
-            vgroup("quadrotor",par(i,3, _ <: par(i,4,rain(i)/4) ))) :> _ <: _,_;
+            vgroup("quadrotor",par(i,3,par(i,4,rain(i)/4) ))) :> _ <: _,_;
