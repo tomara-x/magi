@@ -2,7 +2,7 @@
 
 declare name "quamarotorgirl";
 declare author "amy universe";
-declare version "0.04";
+declare version "0.05";
 declare license "WTFPL";
 
 import("stdfaust.lib");
@@ -66,19 +66,19 @@ with {
         cf = vslider("h:%2x/h:[2]grain noise (rnd)/filter [style:knob]",2e4,1,2e4,1);
     };
 
-    g1 = os.lf_pulsetrain(f2*2^oct + fr,width+wr) : bi2uni
+    freq_rnd1 = vslider("h:%2x/h:[0]g1/[1]frq rnd [style:knob]",0,0,1000,1) * rnd;
+    oct1 = vslider("h:%2x/h:[0]g1/[0]frq oct [style:knob]",0,-8,8,1);
+    g1 = os.lf_pulsetrain(f2*2^oct1 + freq_rnd1,width+wr) : bi2uni
     with {
-        oct = vslider("h:%2x/h:[0]g1/[0]frq oct [style:knob]",0,-8,8,1);
         width = vslider("h:%2x/h:[0]g1/[2]pw [style:knob]",0,0,1,0.001);
-        fr = vslider("h:%2x/h:[0]g1/[1]frq rnd [style:knob]",0,0,1,0.001) * rnd * 1000; //scale
         wr = vslider("h:%2x/h:[0]g1/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
     };
 
-    g2 = os.lf_pulsetrain(f3*2^oct + fr,width+wr) : bi2uni
+    freq_rnd2 = vslider("h:%2x/h:[1]g2/[1]frq rnd [style:knob]",0,0,1000,1) * rnd;
+    oct2 = vslider("h:%2x/h:[1]g2/[0]frq oct [style:knob]",0,-8,8,1);
+    g2 = os.lf_pulsetrain(f3*2^oct2 + freq_rnd2,width+wr) : bi2uni
     with {
-        oct = vslider("h:%2x/h:[1]g2/[0]frq oct [style:knob]",0,-8,8,1);
         width = vslider("h:%2x/h:[1]g2/[2]pw [style:knob]",0,0,1,0.001);
-        fr = vslider("h:%2x/h:[1]g2/[1]frq rnd [style:knob]",0,0,1,0.001) * rnd * 1000;
         wr = vslider("h:%2x/h:[1]g2/[3]pw rnd [style:knob]",0,0,1,0.001) * abs(rnd);
     };
 
@@ -88,6 +88,12 @@ with {
     r = vslider("h:%2x/h:[3]grain env/[3]release [style:knob]",0.01,0,1,0.0001);
 };
 
+quadrotor = par(i,4,rain(i)/4);
 
-process = tgroup("quamarotorgirl", vgroup("amaranth",amaranth) <: 
-            vgroup("quadrotor",par(i,3,par(i,4,rain(i)/4) ))) :> _ <: _,_;
+filter = fi.svf.lp(freq,q)
+with {
+    freq = vslider("t:quamarotorgirl/v:quadrotor/h:filter/freq [style:knob]",2e4,1,2e4,1);
+    q = vslider("t:quamarotorgirl/v:quadrotor/h:filter/q [style:knob]",1,0.01,8,0.01);
+};
+
+process = tgroup("quamarotorgirl", vgroup("amaranth",amaranth) <: vgroup("quadrotor",quadrotor)) :> filter <: _,_;
