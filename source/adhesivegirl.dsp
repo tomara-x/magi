@@ -2,7 +2,7 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.02";
+declare version "0.03";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -10,7 +10,7 @@ import("stdfaust.lib");
 
 
 N = 32; //oscillators per group
-group(x) = par(i,N, frq(i) : os.osc * env(i)) :> _/N
+group(x) = par(i,N, frq(i) : min(ma.SR/2) : os.osc * env(i)) :> _/N
 with {
     noise = no.multinoise(N);
     rnd(i) = noise : ba.selector(i,N);
