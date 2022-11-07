@@ -2,7 +2,7 @@
 
 declare name "quadrotorgirl";
 declare author "amy universe";
-declare version "0.06";
+declare version "0.07";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
