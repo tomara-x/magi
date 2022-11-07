@@ -42,7 +42,7 @@ with {
     r = vslider("h:%2x/h:[3]grain env/[3]release [style:knob]",0.01,0,1,0.0001);
 };
 
-op(amp,frq,fb) = (_+_ : os.oscp(frq)*amp) ~ *(fb); //pm operator
+op(amp,frq,fb) = (_+_ : *(ma.PI) : os.oscp(frq)*amp) ~ *(fb); //pm operator
 
 gate = button("h:hidden (nothing to see here!)/gate"); //midi gate
 env = gate : en.adsr(a,d,s,r)
