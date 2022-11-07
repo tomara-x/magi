@@ -2,23 +2,24 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.04";
+declare version "0.05";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
 import("stdfaust.lib");
 
 
-N = 32; //oscillators per group
+N = 8; //oscillators per group
 group(x) = par(i,N, frq(i) : min(ma.SR/2) : os.osc * env(i)) :> _/N
 with {
     noise = no.multinoise(N);
     rnd(i) = noise : ba.selector(i,N);
-    frq(i) = base_frq + gshift + i*pshift +
+    frq(i) = (base_frq + gshift + i*pshift) * 2^(eshift*i/12) +
         (rnd_amt*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter))
     with {
         gshift = vslider("h:%x/v:freq/group shift [style:knob]",0,0,2000,0.1);
-        pshift = vslider("h:%x/v:freq/partial shift [style:knob]",0,0,2000,0.1);
+        pshift = vslider("h:%x/v:freq/h:[1]partial shift/hz [style:knob]",0,0,2000,0.1);
+        eshift = vslider("h:%x/v:freq/h:[1]partial shift/semi [style:knob]",0,-24,24,0.1);
         rnd_amt = vslider("h:%x/v:freq/rnd amount [style:knob]",0,0,10000,0.001);
         noise_rate = vslider("h:%x/v:freq/h:[0]noise/rate [style:knob]",20,1,200,1)*60;
         noise_filter = vslider("h:%x/v:freq/h:[0]noise/filter [style:knob]",20,1,200,1);
@@ -61,7 +62,7 @@ with {
 };
 
 
-process = tgroup("adhesivegirl",par(i,4,hgroup("%i",group(i)))) :> _ <: _,_;
+process = tgroup("adhesivegirl",par(i,4,hgroup("%i",group(i)))) :> _/4 <: _,_;
 
 base_frq = nentry("/t:adhesivegirl/h:zmidistuff/freq",0,0,2e4,1); //midi frequency;
 gate = button("/t:adhesivegirl/h:zmidistuff/gate"); //midi gate
