@@ -61,7 +61,7 @@ with {
 };
 
 
-process = tgroup("adhesivegirl",vgroup("ui",hgroup("h",group(0)+group(1))+hgroup("l",group(2)+group(3)))) <: _,_;
+process = tgroup("adhesivegirl",par(i,4,hgroup("%i",group(i)))) :> _ <: _,_;
 
 base_frq = nentry("/t:adhesivegirl/h:zmidistuff/freq",0,0,2e4,1); //midi frequency;
 gate = button("/t:adhesivegirl/h:zmidistuff/gate"); //midi gate
