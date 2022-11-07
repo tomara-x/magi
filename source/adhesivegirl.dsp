@@ -2,7 +2,7 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.03";
+declare version "0.04";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -17,7 +17,6 @@ with {
     frq(i) = base_frq + gshift + i*pshift +
         (rnd_amt*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter))
     with {
-        base_frq = nentry("h:hidden/freq",0,0,2e4,1); //midi frequency;
         gshift = vslider("h:%x/v:freq/group shift [style:knob]",0,0,2000,0.1);
         pshift = vslider("h:%x/v:freq/partial shift [style:knob]",0,0,2000,0.1);
         rnd_amt = vslider("h:%x/v:freq/rnd amount [style:knob]",0,0,10000,0.001);
@@ -62,8 +61,9 @@ with {
 };
 
 
-process = group(0) <: _,_;
+process = tgroup("adhesivegirl",vgroup("ui",hgroup("h",group(0)+group(1))+hgroup("l",group(2)+group(3)))) <: _,_;
 
-gate = button("h:hidden/gate"); //midi gate
+base_frq = nentry("/t:adhesivegirl/h:zmidistuff/freq",0,0,2e4,1); //midi frequency;
+gate = button("/t:adhesivegirl/h:zmidistuff/gate"); //midi gate
 vel = nentry("h:hidden/gain",0.5,0,1,0.01); //midi velocity
 bend = ba.semi2ratio(hslider("h:hidden/bend[midi:pitchwheel]",0,-2,2,0.01)) : si.polySmooth(gate,0.999,1); //midi pitch bend
