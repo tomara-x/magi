@@ -2,7 +2,7 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.05";
+declare version "0.06";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -14,15 +14,16 @@ group(x) = par(i,N, frq(i) : min(ma.SR/2) : os.osc * env(i)) :> _/N
 with {
     noise = no.multinoise(N);
     rnd(i) = noise : ba.selector(i,N);
-    frq(i) = (base_frq + gshift + i*pshift) * 2^(eshift*i/12) +
-        (rnd_amt*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter))
+    frq(i) = (base_frq + gshift_hz + i*pshift_hz) * 2^(gshift_sm/12) * 2^(pshift_sm*i/12) *
+        (2^(rnd_amt*rnd(i)/12) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter))
     with {
-        gshift = vslider("h:%x/v:freq/group shift [style:knob]",0,0,2000,0.1);
-        pshift = vslider("h:%x/v:freq/h:[1]partial shift/hz [style:knob]",0,0,2000,0.1);
-        eshift = vslider("h:%x/v:freq/h:[1]partial shift/semi [style:knob]",0,-24,24,0.1);
-        rnd_amt = vslider("h:%x/v:freq/rnd amount [style:knob]",0,0,10000,0.001);
-        noise_rate = vslider("h:%x/v:freq/h:[0]noise/rate [style:knob]",20,1,200,1)*60;
-        noise_filter = vslider("h:%x/v:freq/h:[0]noise/filter [style:knob]",20,1,200,1);
+        gshift_hz = vslider("h:%x/v:freq/h:[0]group shift/hz [style:knob]",0,0,2000,0.1);
+        gshift_sm = vslider("h:%x/v:freq/h:[0]group shift/semi [style:knob]",0,-24,24,0.1);
+        pshift_hz = vslider("h:%x/v:freq/h:[1]partial shift/hz [style:knob]",0,0,2000,0.1);
+        pshift_sm = vslider("h:%x/v:freq/h:[1]partial shift/semi [style:knob]",0,-24,24,0.1);
+        rnd_amt = vslider("h:%x/v:freq/rnd amount [style:knob]",0,0,48,0.1);
+        noise_rate = vslider("h:%x/v:freq/h:[2]noise/rate [style:knob]",20,1,200,1)*60;
+        noise_filter = vslider("h:%x/v:freq/h:[2]noise/filter [style:knob]",20,1,200,1);
     };
 
     env(i) = gate : en.adsr(a+ar,d+dr,s+sr,r+rr)
