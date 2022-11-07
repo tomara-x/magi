@@ -2,7 +2,7 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.06";
+declare version "0.07";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -10,8 +10,9 @@ import("stdfaust.lib");
 
 
 N = 8; //oscillators per group
-group(x) = par(i,N, frq(i) : min(ma.SR/2) : os.osc * env(i)) :> _/N
+group(x) = par(i,N, frq(i) : min(ma.SR/2) : os.osc *(i<m) * env(i)) :> _/N
 with {
+    m = vslider("h:%x/v:freq/partials [style:knob]",N,0,N,1);
     noise = no.multinoise(N);
     rnd(i) = noise : ba.selector(i,N);
     frq(i) = (base_frq + gshift_hz + i*pshift_hz) * 2^(gshift_sm/12) * 2^(pshift_sm*i/12) *
