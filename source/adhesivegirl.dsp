@@ -2,14 +2,13 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.08";
+declare version "0.09";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
 import("stdfaust.lib");
 
-//TODO: test the filter-based/wg osc, (sustain + sustain rnd) must be < 1,
-//noise filter affecting group freq without any noise being added, meditate on the hz shift,
+//TODO: noise filter affecting group freq without any noise being added, meditate on the hz shift,
 //dj filter for the group to shape the amplitude of partials 
 
 N = 8; //oscillators per group
@@ -30,7 +29,7 @@ with {
         noise_filter = vslider("h:%x/v:[0]freq/h:[2]noise/filter [style:knob]",20,1,200,1);
     };
 
-    env(i) = gate : en.adsr(a+ar,d+dr,s+sr,r+rr) //min(1) (max and yeet the abs)
+    env(i) = gate : en.adsr(a+ar,d+dr,min(max(s+sr,0),1),r+rr)
     with {
         a = vslider("h:%x/h:[1]env/v:[0]attack/[0]attack [style:knob]",0,0,1,0.0001);
         ar = att_rnd*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter)
@@ -49,7 +48,7 @@ with {
         };
 
         s = vslider("h:%x/h:[1]env/v:[2]sustain/[0]sustain [style:knob]",0,0,1,0.0001);
-        sr = abs(sus_rnd*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter))
+        sr = sus_rnd*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter)
         with {
             sus_rnd = vslider("h:%x/h:[1]env/v:[2]sustain/[1]rnd amount [style:knob]",0,0,1,0.001);
             noise_rate = vslider("h:%x/h:[1]env/v:[2]sustain/[2]rate [style:knob]",20,0.1,200,0.1)*60;
