@@ -9,7 +9,8 @@ declare options "[midi:on][nvoices:8]";
 import("stdfaust.lib");
 
 //TODO: test the filter-based/wg osc, (sustain + sustain rnd) must be < 1,
-//noise filter affecting group freq without any noise being added, meditate on the hz shift
+//noise filter affecting group freq without any noise being added, meditate on the hz shift,
+//dj filter for the group to shape the amplitude of partials 
 
 N = 8; //oscillators per group
 group(x) = par(i,N, frq(i) : min(ma.SR/2) : os.osc *(i<m) * env(i) * vel) :> _/N
@@ -29,7 +30,7 @@ with {
         noise_filter = vslider("h:%x/v:[0]freq/h:[2]noise/filter [style:knob]",20,1,200,1);
     };
 
-    env(i) = gate : en.adsr(a+ar,d+dr,s+sr,r+rr) //min(1)
+    env(i) = gate : en.adsr(a+ar,d+dr,s+sr,r+rr) //min(1) (max and yeet the abs)
     with {
         a = vslider("h:%x/h:[1]env/v:[0]attack/[0]attack [style:knob]",0,0,1,0.0001);
         ar = att_rnd*rnd(i) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter)
