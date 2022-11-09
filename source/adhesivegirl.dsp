@@ -2,7 +2,7 @@
 
 declare name "adhesivegirl";
 declare author "amy universe";
-declare version "0.10";
+declare version "0.11";
 declare license "WTFPL";
 declare options "[midi:on][nvoices:8]";
 
@@ -16,7 +16,7 @@ N = 16; //oscillators per group
 //going into oscillators, mult by 0 for inactive ones, mult by envelopes and velocity,
 //then summed into filter (tracking key), and divided for loudness
 group(x) = par(i,N, frq(i) : max(10) : min(ma.SR/2) :
-            os.osc *(i<m) * env(i) * vel) :> fi.svf.lp(min(frq(0),ma.SR/2)+offset,q)/N
+            os.osc *(i<m) * env(i) * vel) :> fi.svf.lp(min(frq(0)+offset,ma.SR/2),q)/N
 with {
     offset = vslider("v:[0]part/[1]filter cf [style:knob]",0,0,1e4,0.1);
     q = vslider("v:[0]part/[2]filter q [style:knob]",1,0.001,4,0.001);
