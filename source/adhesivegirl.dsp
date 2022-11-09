@@ -8,7 +8,7 @@ declare options "[midi:on][nvoices:8]";
 
 import("stdfaust.lib");
 
-//TODO: noise filter affecting group freq without any noise being added, meditate on the hz shift
+//TODO: meditate on the hz shift
 
 N = 16; //oscillators per group
 
@@ -27,7 +27,7 @@ with {
     //midi key frequency, shifted by group shift, then by partial shift, all shifted by group and partial
     //semitone shift, then frequency randomness is added
     frq(i) = (base_frq + gshift_hz + i*pshift_hz) * 2^(gshift_sm/12) * 2^(pshift_sm*i/12) *
-        (2^(rnd_amt*rnd(i)/12) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter))
+        (2^(rnd_amt*rnd(i)/12) : ba.sAndH(ba.beat(noise_rate)) : fi.lowpass(1,noise_filter)) //FIX: glides from 0 to 1 when no rnd
     with {
         gshift_hz = vslider("v:[2]freq/h:[0]group shift/hz [style:knob]",0,0,2000,0.1);
         gshift_sm = vslider("v:[2]freq/h:[0]group shift/semi [style:knob]",0,-48,48,0.1);
