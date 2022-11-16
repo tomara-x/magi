@@ -2,28 +2,45 @@
 
 declare name "twinrotorgirl";
 declare author "amy universe";
-declare version "0.04";
+declare version "0.05";
 declare license "WTFPL";
 
 import("stdfaust.lib");
 
-chop(x) =  gate*grntrg : ba.cycle(32) <: par(i,32,en.are(0,r)*x*wet) :> fi.svf.notch(cf,q), x*(1-wet) :> _
-with {
-    grntrg = ba.beat(vslider("h:[0]t/grains hz[scale:log]",440,0.0001,2e4,0.0001)*60);
-    gate = os.lf_pulsetrain(frq,pw)+1 : /(2)
-    with {
-        frq = vslider("h:[0]t/gate frq [scale:log]",440,0.0001,2e4,0.0001);
-        pw = vslider("h:[0]t/gate width",0.5,0,1,0.001);
-    };
-    r = vslider("h:[0]t/grain release[scale:log]",0.01,0.001,4,0.0001);
+bi2uni = _ : +(1) : /(2) : _;
 
-    cf = ba.counter(os.lf_pulsetrain(frq,0.5)) : *(size) : %(2e4) : +(1)
+N = 32; //max overlap
+
+noise(i) = no.multinoise(N*2) : ba.selector(i,N*2);
+
+trigs = par(i,N, ba.beat(frq(i)*60) * (i<cnt) ) //cycle instead of par beats?
+with {
+    frq(x) = f + fr * (noise(x) : ba.downSample(nr) : fi.svf.lp(nf,1) : bi2uni)
     with {
-        frq = vslider("h:[1]f/jmp frq [scale:log]",440,0.0001,2e4,0.0001);
-        size = vslider("h:[1]f/jmp size [scale:log]",440,0.0001,2e4,0.0001);
+        f = vslider("h:freq/frq [style:knob]",10,0.01,100,0.001);
+        fr = vslider("h:freq/frq rnd [style:knob]",0,0,10,0.01);
+        nr = vslider("h:freq/noise rate [style:knob]",100,0.1,500,0.01);
+        nf = vslider("h:freq/noise filter [style:knob]",100,0.1,500,0.01);
     };
-    q = vslider("h:[1]f/q",0.1,0.01,1,0.001);
-    wet = vslider("wet",1,0,1,0.01);
+    cnt = vslider("overlap [style:knob]",8,0,N,1);
 };
 
-process = _,_ : vgroup("twinrotorgirl", hgroup("r1",chop),hgroup("r2",chop) ) : _,_;
+gates = par(i,N,ba.peakholder(t(i)))
+with {
+    ti = vslider("h:gate/time i [style:knob]",0.001,0.001,0.1,0.001);
+    tf = vslider("h:gate/time f [style:knob]",0.01,0.001,0.1,0.001);
+    t(x) = ba.sec2samp((x+1)*abs(tf-ti)/N);
+};
+
+f(x) = trigs : gates : par(i,N,*(x@del(i))) :> _
+with {
+    del(x) = ba.sec2samp(d(x) + dr * (noise(x+N) : ba.downSample(nr) : fi.svf.lp(nf,1) : min(0) : max(1)))
+    with {
+            d(x) = vslider("h:delay/shift [style:knob]",0.1,0,1,0.001) * x;
+            dr = vslider("h:delay/del rnd [style:knob]",0,0,1,0.001);
+            nr = vslider("h:delay/noise rate [style:knob]",100,0.1,500,0.01);
+            nf = vslider("h:delay/noise filter [style:knob]",100,0.1,500,0.01);
+    };
+};
+
+process = sp.stereoize(f);
