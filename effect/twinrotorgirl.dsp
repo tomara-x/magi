@@ -2,7 +2,7 @@
 
 declare name "twinrotorgirl";
 declare author "amy universe";
-declare version "0.08";
+declare version "0.09";
 declare license "WTFPL";
 
 import("stdfaust.lib");
@@ -27,10 +27,11 @@ with {
 
 gates = par(i,N,ba.peakholder(t(i)) : en.asr(ba.samp2sec(t(i))*env, 1, ba.samp2sec(t(i))*env))
 with {
-    t(x) = ba.sec2samp(l + lr * (noise(x+N) : ba.downSample(nr) : fi.svf.lp(nf,1)) : ba.sAndH(trigs : ba.selector(x,N)))
+    t(x) = ba.sec2samp(l + lr * (noise(x+N) : ba.downSample(nr) : ba.sAndH(trigs : ba.selector(x,N)) :
+            fi.svf.lp(nf,1)) : max(0))
     with {
-        l = vslider("v:[1]gate/[0]length [style:knob]",0.001,0.001,1,0.001);
-        lr = vslider("v:[1]gate/[2]len rnd [style:knob]",0,0,10,0.01);
+        l = vslider("v:[1]gate/[0]length [style:knob]",0.001,0.001,4,0.001);
+        lr = vslider("v:[1]gate/[2]len rnd [style:knob]",0,0,2,0.01);
         nr = vslider("v:[1]gate/[3]noise rate [style:knob]",10,0.1,100,0.01);
         nf = vslider("v:[1]gate/[4]noise filter [style:knob]",10,0.1,100,0.01);
     };
@@ -39,8 +40,8 @@ with {
 
 f(x) = trigs : gates : par(i,N,*(x@del(i)) : sp.panner(pan(i)))
 with {
-    del(x) = ba.sec2samp(d(x) + dr * (noise(x+2*N) : ba.downSample(nr) : fi.svf.lp(nf,1) :
-             ba.sAndH(trigs : ba.selector(x,N)) : min(1) : max(0)))
+    del(x) = ba.sec2samp(d(x) + dr * (noise(x+2*N) : ba.downSample(nr) :
+             ba.sAndH(trigs : ba.selector(x,N)) : fi.svf.lp(nf,1) : min(1) : max(0)))
     with {
         d(x) = vslider("v:[2]delay/[0]shift [style:knob]",0.1,0,1,0.001) * x;
         dr = vslider("v:[2]delay/[1]del rnd [style:knob]",0,0,1,0.001);
